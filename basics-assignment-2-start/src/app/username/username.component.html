@@ -1,0 +1,8 @@
+<!-- add input field which updates a property username with two way binding -->
+<input type="text" [(ngModel)]="username" />
+
+<!-- output username property with string interpolation -->
+<p>{{ username }}</p>
+
+<!-- button which may only be clicked if the username is not empty -->
+<button [disabled]="isEmptyUsername()" (click)="clearUsername()">Clear</button>

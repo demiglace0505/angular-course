@@ -1,0 +1,17 @@
+<!-- add a button which says display details, toggle the displaying of paragraph with the button -->
+<button (click)="onDisplayClick()">Display Details</button>
+<p *ngIf="showText">
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore hic, porro
+  aperiam, aut, voluptas deleniti reprehenderit modi saepe sapiente molestias
+  eos? Recusandae amet, repudiandae quam nesciunt reiciendis esse provident
+  animi!
+</p>
+
+<div
+  *ngFor="let item of listArray; let i = index"
+  [ngClass]="{
+    colored: i >= 4
+  }"
+>
+  {{ item }}
+</div>

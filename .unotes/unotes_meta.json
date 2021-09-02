@@ -1,0 +1,89 @@
+{
+  "name": "",
+  "isOrdered": true,
+  "folders": {
+    "my-first-app": {
+      "name": "my-first-app",
+      "isOrdered": true,
+      "folders": {
+        "src": {
+          "name": "src",
+          "isOrdered": true,
+          "folders": {
+            "app": {
+              "name": "app",
+              "isOrdered": true,
+              "folders": {
+                "server": {
+                  "name": "server",
+                  "isOrdered": true,
+                  "folders": {},
+                  "files": {}
+                },
+                "servers": {
+                  "name": "servers",
+                  "isOrdered": true,
+                  "folders": {},
+                  "files": {}
+                }
+              },
+              "files": {}
+            },
+            "assets": {
+              "name": "assets",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            },
+            "environments": {
+              "name": "environments",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            }
+          },
+          "files": {}
+        }
+      },
+      "files": {
+        "README": 0
+      }
+    },
+    "typescript": {
+      "name": "typescript",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "basics-assignment-1-start": {
+      "name": "basics-assignment-1-start",
+      "isOrdered": true,
+      "folders": {
+        "e2e": {
+          "name": "e2e",
+          "isOrdered": true,
+          "folders": {},
+          "files": {}
+        },
+        "src": {
+          "name": "src",
+          "isOrdered": true,
+          "folders": {},
+          "files": {}
+        }
+      },
+      "files": {
+        "README": 0
+      }
+    },
+    "basics-assignment-2-start": {
+      "name": "basics-assignment-2-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    }
+  },
+  "files": {
+    "readme": 0
+  }
+}
