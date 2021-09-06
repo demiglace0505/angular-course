@@ -49,12 +49,6 @@
         "README": 0
       }
     },
-    "typescript": {
-      "name": "typescript",
-      "isOrdered": true,
-      "folders": {},
-      "files": {}
-    },
     "basics-assignment-1-start": {
       "name": "basics-assignment-1-start",
       "isOrdered": true,
@@ -78,6 +72,52 @@
     },
     "basics-assignment-2-start": {
       "name": "basics-assignment-2-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "basics-assignment-3-start": {
+      "name": "basics-assignment-3-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "RecipeBook": {
+      "name": "RecipeBook",
+      "isOrdered": true,
+      "folders": {
+        "src": {
+          "name": "src",
+          "isOrdered": true,
+          "folders": {
+            "app": {
+              "name": "app",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            },
+            "assets": {
+              "name": "assets",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            },
+            "environments": {
+              "name": "environments",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            }
+          },
+          "files": {}
+        }
+      },
+      "files": {
+        "README": 0
+      }
+    },
+    "cmp-databinding-start": {
+      "name": "cmp-databinding-start",
       "isOrdered": true,
       "folders": {},
       "files": {}
