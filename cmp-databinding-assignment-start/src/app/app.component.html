@@ -38,4 +38,10 @@
       ></app-game-control>
     </div>
   </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <app-odd *ngFor="let oddNumber of oddNumbers" [numberPrint]="oddNumber"></app-odd>
+      <app-even *ngFor="let evenNumber of evenNumbers" [numberPrint]="evenNumber"></app-even>
+    </div>
+  </div>
 </div>
