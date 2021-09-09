@@ -165,6 +165,52 @@
       "isOrdered": true,
       "folders": {},
       "files": {}
+    },
+    "services-assignment-start": {
+      "name": "services-assignment-start",
+      "isOrdered": true,
+      "folders": {
+        "e2e": {
+          "name": "e2e",
+          "isOrdered": true,
+          "folders": {},
+          "files": {}
+        },
+        "src": {
+          "name": "src",
+          "isOrdered": true,
+          "folders": {
+            "app": {
+              "name": "app",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            },
+            "assets": {
+              "name": "assets",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            },
+            "environments": {
+              "name": "environments",
+              "isOrdered": true,
+              "folders": {},
+              "files": {}
+            }
+          },
+          "files": {}
+        }
+      },
+      "files": {
+        "README": 0
+      }
+    },
+    "services-start": {
+      "name": "services-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
     }
   },
   "files": {

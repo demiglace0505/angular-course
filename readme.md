@@ -990,3 +990,125 @@ export class DropdownDirective {
  
 
 A service is a broad category encompassing any value, function or feature that an application needs. It is typically a class with a well-defined purpose and does something specific.
+
+##### Creating a Logging Service
+
+A service is created with a name.service.ts naming convention. It is important to note that we don't need to import decorators in order to define a service.
+
+```typescript
+export class LoggingService {
+  logStatusChange(status: string) {
+    console.log("A server status changed, new status: " + status);
+  }
+}
+```
+
+To use a service, we need to inject it into components using Angular's dependency injector. We pass the LoggingService class into our constructor and add it in the component's **providers** array.
+
+```typescript
+@Component({
+  ...
+  providers: [LoggingService]
+})
+export class NewAccountComponent {
+  ...
+  constructor(private loggingService: LoggingService) {
+
+  }
+
+  onCreateAccount(accountName: string, accountStatus: string) {
+    this.accountAdded.emit({
+      name: accountName,
+      status: accountStatus
+    });
+    this.loggingService.logStatusChange(accountStatus)
+  }
+}
+
+```
+
+##### Data Service
+
+Another typical use case for services is for storing and managing data.
+
+```typescript
+export class AccountsService {
+  accounts = [
+    {
+      name: "Master Account",
+      status: "active",
+    },
+    ...
+  ];
+
+  addAccount(name: string, status: string) {
+    this.accounts.push({ name, status });
+  }
+
+  updateStatus(id: number, status: string) {
+    this.accounts[id].status = status;
+  }
+}
+
+```
+
+And our app component simply becomes:
+
+```typescript
+export class AppComponent implements OnInit {
+  accounts: { name: string; status: string }[] = [];
+
+  constructor(private accountsService: AccountsService) {}
+
+  ngOnInit() {
+    this.accounts = this.accountsService.accounts;
+  }
+}
+```
+
+It is important to note that injection of services follows the Hierarchical Injection, which means that the children of a component will also get injected. In the case of this app, we don't want to provide **AccountService** to the children (new-account and account), because that would give us a different instance of AccountService. We should only provide AccountService into the parent app component. We shouldn't remove it in the constructor though.
+```typescript
+  //app.component.ts
+  providers: [AccountsService],
+  //new-account.component.ts
+  providers: [LoggingService],
+  //account.component.ts
+  providers: [LoggingService],
+```
+
+##### Injecting Services into Services
+
+To inject a service into a service, we need to provide a service to the highest in the hierarchy, the app module. If we want to inject a service into a service, we need to add the **@Injectable** decorator to the receiving service.
+
+```typescript
+@Injectable()
+export class AccountsService {
+  ...
+  constructor(private loggingService: LoggingService) {}
+}
+```
+
+##### Cross-Component Communication with Services
+
+We can make components communicate with each other using services. We have a triggering component and a listening component. We first add an event emitter in our service.
+```typescript
+statusUpdated = new EventEmitter<string>();
+```
+Then access it and emit an event via AccountsService in our account component
+```typescript
+  onSetTo(status: string) {
+    ...
+    this.accountsService.statusUpdated.emit(status)
+  }
+```
+
+And finally subscribe to it from the new-account component
+```typescript
+constructor(
+    private loggingService: LoggingService,
+    private accountsService: AccountsService
+  ) {
+    this.accountsService.statusUpdated.subscribe(
+      (status: string) => alert('New status: ' + status)
+    )
+```
