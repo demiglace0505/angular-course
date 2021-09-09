@@ -93,7 +93,39 @@
             "app": {
               "name": "app",
               "isOrdered": true,
-              "folders": {},
+              "folders": {
+                "header": {
+                  "name": "header",
+                  "isOrdered": true,
+                  "folders": {},
+                  "files": {}
+                },
+                "recipes": {
+                  "name": "recipes",
+                  "isOrdered": true,
+                  "folders": {},
+                  "files": {}
+                },
+                "shared": {
+                  "name": "shared",
+                  "isOrdered": true,
+                  "folders": {},
+                  "files": {}
+                },
+                "shopping-list": {
+                  "name": "shopping-list",
+                  "isOrdered": true,
+                  "folders": {
+                    "shopping-edit": {
+                      "name": "shopping-edit",
+                      "isOrdered": true,
+                      "folders": {},
+                      "files": {}
+                    }
+                  },
+                  "files": {}
+                }
+              },
               "files": {}
             },
             "assets": {
@@ -118,6 +150,18 @@
     },
     "cmp-databinding-start": {
       "name": "cmp-databinding-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "cmp-databinding-assignment-start": {
+      "name": "cmp-databinding-assignment-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "directives-start": {
+      "name": "directives-start",
       "isOrdered": true,
       "folders": {},
       "files": {}

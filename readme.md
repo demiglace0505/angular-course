@@ -18,18 +18,6 @@ Optimizations & NgModules
 Deployment
 Animations & Testing
 
-### Getting Started
-
-To get started with working on Angular projects, we need first to instlal the Angular CLI. Aside from the Angular CLI, Nodejs is also needed.
-
-```
-npm install -g @angular/cli
-```
-
-TypeScript is the primary language for development of Angular applications. It is a superset of JavaScript and offers features such as strong typing, classes, interface.
-
-I learned the basics of TypeScript such as the base types, primitives, arrays, and objects. Aside from the types, I also learned of assigning them to type aliases. Writing Generics was also covered, which allows us to write type-safe yet flexible functions. Most importantly, classes and interfaces in typescript was also covered.
-
 ### Angular Basics
 
 ##### Creating a Component
@@ -401,9 +389,10 @@ export class CockpitComponent implements OnInit {
 ```
 
 ##### Using Local References
+
 A local reference can be placed on any HTML element. A reference will hold the reference to the specific element. This reference can then be passed around in the html template, not in the typescript component. The following example shows the difference between using two-way binding and using reference.
 
-```html
+``` html
     <!-- using reference -->
     <label>Server Name</label>
     <input type="text" class="form-control" #serverNameInput />
@@ -420,7 +409,7 @@ A local reference can be placed on any HTML element. A reference will hold the r
     </button>
 ```
 
-```typescript
+``` typescript
   onAddServer(nameInput: HTMLInputElement) {
     console.log(nameInput.value);
     this.serverCreated.emit({
@@ -438,13 +427,16 @@ A local reference can be placed on any HTML element. A reference will hold the r
 ```
 
 ##### Accessing the Template & DOM using @ViewChild
+
 Another way to access a local reference or any element directly from within our typescript code is by using **@ViewChild** Decorator. We just need to pass the local reference as a string argument to the ViewChild decorator and then the element could then be accessed using the **nativeElement** property. In the example below, the local reference #serverContentInput is accessed.
-```html
+
+``` html
 <input type="text" class="form-control" #serverContentInput />
 ```
-```typescript
+
+``` typescript
   @ViewChild("serverContentInput", { static: true }) serverContentInput: ElementRef;
-  
+
   onAddServer(nameInput: HTMLInputElement) {
     console.log(this.serverContentInput);
     this.serverCreated.emit({
@@ -460,10 +452,12 @@ Another way to access a local reference or any element directly from within our 
     });
   }
 ```
-##### Projecting Content into Components with ng-content
-We can use the ng-content directive in a place where we want to render content. We then have to nest the content we want to be rendered inside the component's tag, in this case, in between <app-server-element>
 
-```html
+##### Projecting Content into Components with ng-content
+
+We can use the ng-content directive in a place where we want to render content. We then have to nest the content we want to be rendered inside the component's tag, in this case, in between
+<br>
+``` html
 <div class="panel panel-default">
   <div class="panel-heading">{{ element.name }}</div>
   <div class="panel-body">
@@ -472,7 +466,7 @@ We can use the ng-content directive in a place where we want to render content. 
 </div>
 ```
 
-```html
+``` html
 <app-server-element
         *ngFor="let serverElement of serverElements"
         [srvElement]="serverElement"
@@ -490,11 +484,10 @@ We can use the ng-content directive in a place where we want to render content. 
 
 ### Component Lifecycle
 
-If a new component is created in Angular, it is instantiated and added to the DOM. 
-
+If a new component is created in Angular, it is instantiated and added to the DOM.
 
 | Hook | Description |
-| --- | --- |
+| ---- | ----------- |
 | ngOnChanges | Called after a bound input property chagnes |
 | ngOnInit | Called once a component is initialized. Runs after the constructor |
 | ngDoCheck | Called during every change detection run |
@@ -505,14 +498,16 @@ If a new component is created in Angular, it is instantiated and added to the DO
 | ngOnDestroy | Called once the component is about to be destroyed |
 
 ##### Accessing ng-content with @ContentChild
-```html
+
+``` html
 <p #contentParagraph>
   ...
 </p>
 ```
-```typescript
+
+``` typescript
   @ContentChild('contentParagraph', {static: true}) paragraph: ElementRef;
-  
+
     ngOnInit(): void {
     console.log("ngonInit called");
     console.log(
@@ -520,7 +515,7 @@ If a new component is created in Angular, it is instantiated and added to the DO
       this.paragraph.nativeElement.textContent
     );
   }
-  
+
     ngAfterContentInit() {
     console.log("ngAfterContentInit called");
     console.log(
@@ -529,3 +524,469 @@ If a new component is created in Angular, it is instantiated and added to the DO
     );
   }
 ```
+
+### Adding Navigation with Event Binding and ngIf
+
+We first add click event listeners in our navigation link components
+
+``` html
+        <li>
+          <a href="#" (click)="onSelect('recipe')">Recipe</a>
+        </li>
+        <li>
+          <a href="#" (click)="onSelect('shopping-list')">Shopping List</a>
+        </li>
+```
+
+We then create the event emitter in our component. We make use of the @Output decorator in order to make this event listenable from outside the header component, in this case, the parent or the app component.
+
+``` typescript
+export class HeaderComponent {
+  @Output() featureSelected = new EventEmitter<string>();
+
+  onSelect(feature: string) {
+    this.featureSelected.emit(feature);
+  }
+```
+
+In the parent component, the app component, we will add a listener event that listens for the *featureSelected* event and then executes *onNavigate()*, wherein this time we pass the event data of featureSelected through the reserved $event keyword.
+
+``` html
+<app-header (featureSelected)="onNavigate($event)"></app-header>
+```
+
+We then proceed to write the function in the app component. The *loadedFeature* property is set to the feature that we receive from the event's argument.
+
+``` typescript
+export class AppComponent {
+  loadedFeature: string = 'recipe';
+
+  onNavigate(feature: string) {
+    this.loadedFeature = feature;
+  }
+}
+```
+
+We finally make use of **ngIf** directive to conditionally render which page to load depending on the feature selected
+
+``` html
+      <app-recipes *ngIf="loadedFeature === 'recipe'" ></app-recipes>
+      <app-shopping-list *ngIf="loadedFeature !== 'recipe'" ></app-shopping-list>
+```
+
+### Passing Data with Property Binding
+
+For this section, we built the individual recipe item components. We first create the templates for recipe-list and recipe-item respectively.
+
+``` html
+<!-- recipe-list -->
+<app-recipe-item *ngFor="let recipe of recipes"></app-recipe-item>
+```
+
+``` html
+<!-- recipe-item -->
+<a href="#" class="list-group-item clearfix">
+  <div class="pull-left">
+    <h4 class="list-group-item-heading">{{ recipe.name }}</h4>
+    <p class="list-group-item-text">{{ recipe.description }}</p>
+  </div>
+  <div class="span pull-right">
+    <img
+      [src]="recipe.imagePath"
+      alt="{{ recipe.name }}"
+      class="img-responsive"
+      style="max-height: 50px"
+    />
+  </div>
+</a>
+```
+
+We add a recipe property to recipe-item, which we will be getting from outside the recipe-item component using the @Input decorator.
+
+``` typescript
+export class RecipeItemComponent implements OnInit {
+  @Input() recipe: Recipe;
+
+  constructor() {}
+
+  ngOnInit(): void {}
+}
+```
+
+This allows us to bind the recipe property from outside, which we will be binding from the recipe-list component. At this point, it would be a great time to rename the individual item from the **ngFor** directive. recipeEl is the element which we will pass to the bindable recipe property from the recipe-item component. We can now update the recipe template as such:
+
+``` html
+<!-- recipe-list -->
+<app-recipe-item *ngFor="let recipeEl of recipes" [recipe]="recipeEl"></app-recipe-item>
+```
+
+The recipe property is of type model
+
+``` typescript
+export class Recipe {
+  public name: string;
+  public description: string;
+  public imagePath: string;
+
+  constructor(name: string, description: string, imagePath: string) {
+    this.name = name;
+    this.description = description;
+    this.imagePath = imagePath;
+  }
+}
+```
+
+### Event and Property Binding
+
+The goal of this section is to be able to display a single detailed recipe section when we click an item from our recipe list. The caveat with this approach is that we first pass from recipe-item to recipe-list and finally recipe-detail. A more elegant solution will be discussed in future chapters.
+
+We first set up the click listener of the single recipe-item component. Again the @Output director is necessary to be able to listen to this event from outside the recipe-item component.
+
+``` typescript
+export class RecipeItemComponent implements OnInit {
+  @Input() recipe: Recipe;
+  @Output() recipeSelected = new EventEmitter<void>();
+
+  constructor() {}
+  ngOnInit(): void {}
+
+  onSelected() {
+    this.recipeSelected.emit();
+  }
+}
+```
+
+We then update the template for our recipe-list component to listen to this event. We pass on the current recipe object, which is the *recipeEl*
+
+``` html
+    <app-recipe-item
+      *ngFor="let recipeEl of recipes"
+      [recipe]="recipeEl"
+      (recipeSelected)="onRecipeSelected(recipeEl)"
+    ></app-recipe-item>
+```
+
+We then Emit another event. We pass the recipeEl received from the above to the event emitter. This time around, the parent **recipes** component will be the one listening for this event.
+
+``` typescript
+export class RecipeListComponent implements OnInit {
+  @Output() recipeWasSelected = new EventEmitter<Recipe>();
+  ...
+  onRecipeSelected(recipe: Recipe) {
+    this.recipeWasSelected.emit(recipe);
+  }
+}
+```
+
+We can set up recipes template. We set the component's *selectedRecipe* property into the recipe we received from the recipeWasSelected event.
+
+We use the ngIf directive together with ng-template to conditionally render *infoText* if selectedRecipe is null, or in other words, no recipe was selected yet. The *recipe* property of the recipe-detail component is bound to selectedRecipe.
+
+``` html
+    <app-recipe-list
+      (recipeWasSelected)="selectedRecipe = $event"
+    ></app-recipe-list>
+
+    <app-recipe-detail
+      *ngIf="selectedRecipe; else infoText"
+      [recipe]="selectedRecipe"
+    ></app-recipe-detail>
+    <ng-template #infoText>
+      <p>Please select a Recipe</p>
+    </ng-template>
+```
+
+We can now render the data in our recipe-detail template
+
+``` html
+    <img
+      [src]="recipe.imagePath"
+      alt="{{ recipe.name }}"
+      class="img-responsive"
+    />
+    ...
+    <h1>{{ recipe.name }}</h1>
+    ...
+    <div class="col-xs-12">{{ recipe.description }}</div>
+```
+
+### Allowing Addition of Items to the Shopping List
+
+We begin by adding local references to the input fields #nameInput and #amountInput and adding the click event listener to the Add button.
+
+``` html
+<input type="text" id="name" class="form-control" #nameInput />
+<input type="number" class="form-control" id="amount" #amountInput />
+<button class="btn btn-success" type="submit" (click)="onAddItem()" >Add</button>
+```
+
+We make use of the ViewChild() decorator to access these local references from within the typescript code. We now create an event emitter wherein we pass the data to the parent component that manages the array of ingredients, which is the shopping-list component. We pass the Ingredient model for the type definition of the event emitter.
+
+The values received from ViewChild can be accessed using **nativeElement**, which we then pass to our event emitter.
+
+``` typescript
+export class ShoppingEditComponent implements OnInit {
+  @ViewChild('nameInput', { static: false }) nameInputRef: ElementRef;
+  @ViewChild('amountInput', { static: false }) amountInputRef: ElementRef;
+  @Output() ingredientAdded = new EventEmitter<Ingredient>();
+
+  constructor() {}
+
+  ngOnInit(): void {}
+
+  onAddItem() {
+    const name = this.nameInputRef.nativeElement.value;
+    const amount = this.amountInputRef.nativeElement.value;
+    const newIngredient = new Ingredient(name, amount);
+    this.ingredientAdded.emit(newIngredient);
+  }
+}
+```
+
+We can now listen to the ingredientAdded event from our shopping-list template
+
+``` html
+    <app-shopping-edit
+      (ingredientAdded)="onIngredientAdded($event)"
+    ></app-shopping-edit>
+```
+
+And then we create the function onIngredientAdded in our shopping-list component, which receives the event data from the ingredientAdded event.
+
+``` typescript
+  onIngredientAdded(ingredient: Ingredient) {
+    this.ingredients.push(ingredient);
+  }
+```
+
+### Directives
+
+> Reference: directives-start
+
+Structural directives are responsible for the HTML layout. These are indicated by the **(\*)** symbol. It is important to note that multiple structural directives cannot be used at the same time on the same element. The two structural directives covered thus far are **ngFor** and **ngIf**
+
+Attribute directives on the other hand, does not change the HTML layout. These are indicated by square brackets and we can use multiple attribute directives on the same element. Some examples of attribute directives are **ngStyle** and **ngClass**
+
+##### Creating our own directive
+
+We could also create our own directives. We create a subdirectory on our project called *basic-highlight* and inside of it we create a file *basic-highlight.directive.ts*. We use the **@Directive** decorator, and we need to pass an object as a parameter. The selector attribute allows us to attach them to an element. We wrap the value in square brackets so that we don't have to do so when we use our directive in our component.
+
+A quicker way of creating directives is by use of the angular cli
+
+```
+ng generate directive better-highlight
+```
+
+We can access the element into this directive by injection. To do this, we need to pass an ElementRef argument to the constructor. This is a reference to the element wherein the directive is placed on. To be able to use this data anywhere in our class, we can use **private** which will make it a property of ElementRef.
+
+``` typescript
+@Directive({
+  selector: "[appBasicHighlight]",
+})
+export class BasicHighlightDirective implements OnInit {
+  constructor(private elementRef: ElementRef) {}
+
+  ngOnInit() {
+    this.elementRef.nativeElement.style.backgroundColor = "gray";
+  }
+}
+```
+
+To use the directive, we have to first declare our directive in our app.module.ts file.
+
+``` typescript
+@NgModule({
+  declarations: [
+    AppComponent,
+    BasicHighlightDirective
+  ],
+  ...
+```
+
+We can then use the directive in our template
+
+``` html
+<p appBasicHighlight>Style me with basic directive!</p>
+```
+
+##### Using the Renderer to build a Directive
+
+Accessing elements directly like the previous example is not a good practice. A better way of building directives is by the use of the Renderer. We inject the helper Renderer2 in our constructor in addition to ElementRef. We now then use the setStyle method of the renderer, which takes four arguments: first is the element, second is the property, third is the value of the property and fourth an optional flags
+
+``` typescript
+@Directive({
+  selector: "[appBetterHighlight]",
+})
+export class BetterHighlightDirective implements OnInit {
+  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+
+  ngOnInit() {
+    this.renderer.setStyle(
+      this.elementRef.nativeElement,
+      "background-color",
+      "blue"
+    );
+  }
+}
+```
+
+We can now use it in our template
+
+``` html
+<p appBetterHighlight>Style me with better directive!</p>
+```
+
+##### Listening to Host Events
+
+To react to events in the element wherein the directive sits on, we can use the **@HostListener** decorator.
+
+``` typescript
+  @HostListener("mouseenter") mouseover(eventData: Event) {
+    this.renderer.setStyle(
+      this.elementRef.nativeElement,
+      "background-color",
+      "blue"
+    );
+  }
+
+  @HostListener("mouseleave") mouseleave(eventData: Event) {
+    this.renderer.setStyle(
+      this.elementRef.nativeElement,
+      "background-color",
+      "transparent"
+    );
+  }
+```
+
+An even easier way, without using the renderer, is through the use of **@HostBinding** decorator. We bind this to a property that will be set to important, in this case *backgroundColor*. We pass a property to the decorator to which property of the hosting element we want to bind, which in this case is *style.backgroundColor*.
+
+``` typescript
+  @HostBinding("style.backgroundColor") backgroundColor: string = "transparent";
+
+  @HostListener("mouseenter") mouseover(eventData: Event) {
+    this.backgroundColor = "blue";
+  }
+  @HostListener("mouseleave") mouseleave(eventData: Event) {
+    this.backgroundColor = "transparent";
+  }
+```
+
+We can make of custom property binding to pass on parameters
+
+```typescript
+export class BetterHighlightDirective implements OnInit {
+  @Input() defaultColor: string = "transparent";
+  @Input() highlightColor: string = "blue";
+  @HostBinding("style.backgroundColor") backgroundColor: string;
+
+  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+
+  ngOnInit() {
+    this.backgroundColor = this.defaultColor;
+  }
+
+  @HostListener("mouseenter") mouseover(eventData: Event) {
+    this.backgroundColor = this.highlightColor;
+  }
+  @HostListener("mouseleave") mouseleave(eventData: Event) {
+    this.backgroundColor = this.defaultColor;
+  }
+}
+```
+
+Specifying our colors in the template:
+```html
+      <p
+        appBetterHighlight
+        [defaultColor]="'yellow'"
+        [highlightColor]="'orange'"
+      >
+        Style me with better directive!
+      </p>
+```
+
+Note that if we set an alias that has the same name as our directive, we need to enclose the directive with a square bracket. In the example below, appBetterHighlight.
+```typescript
+export class BetterHighlightDirective implements OnInit {
+  @Input() defaultColor: string = "transparent";
+  @Input('appBetterHighlight') highlightColor: string = "blue";
+  ...
+}
+```
+```html
+      <p
+        [appBetterHighlight]="'orange'"
+        [defaultColor]="'yellow'"
+      >
+        Style me with better directive!
+      </p>
+```
+
+##### Creating a Structural Directive
+
+We created our own structural directive unless.directive.ts, which is the opposite of ngIf. We bind to a property called 'appUnless' which should be the same name as the selector, but whenever this condition changes, a method should be executed that's why it is declared as a **setter**. It receives a boolean condition as its parameter. To access the template and the place in the document where we want to render, we can inject **TemplateRef** and **ViewContainerRef** in the constructor.
+
+```typescript
+export class UnlessDirective {
+  @Input() set appUnless(condition: boolean) {
+    if (!condition) {
+      this.vcRef.createEmbeddedView(this.templateRef);
+    } else {
+      this.vcRef.clear();
+    }
+  }
+
+  constructor(
+    private templateRef: TemplateRef<any>,
+    private vcRef: ViewContainerRef
+  ) {}
+}
+```
+
+We can now use this directive in our template.
+```html
+<div *appUnless="onlyOdd">
+          <li
+            class="list-group-item"
+            *ngFor="let even of evenNumbers"
+            [ngClass]="{ even: even % 2 === 0 }"
+            [ngStyle]="{
+              backgroundColor: even % 2 === 0 ? 'orangered' : 'transparent'
+            }"
+          >
+            {{ even }}
+          </li>
+        </div>
+```
+
+
+
+
+### Implementing dropdown using directives
+We created a dropdown.directive.ts file and in it, we make use of the **@HostSelector** decorator to listen for click events and fire the **toggleOpen** method, which sets Open to true or false. Using **@HostBinding**, we bind the class.open property of the element this directive is in to the property isOpen. This means that whenever isOpen changes, the host element is updated and the class **open** is either added or removed.
+
+The directive will not be attached initially, but whenever isOpen switches to true, it will be attached and when it switches to false, it will be removed.
+
+```typescript
+@Directive({
+  selector: '[appDropdown]',
+})
+export class DropdownDirective {
+  @HostBinding('class.open') isOpen = false;
+
+  @HostListener('click') toggleOpen() {
+    this.isOpen = !this.isOpen;
+  }
+}
+```
+
+```html
+<li class="dropdown" appDropdown>
+```
+
+
+### Services and Dependency Injection
+> Reference: services-start
+ 
+
+A service is a broad category encompassing any value, function or feature that an application needs. It is typically a class with a well-defined purpose and does something specific.
