@@ -1,24 +1,19 @@
-# Angular - The Complete Guide 2021 Edition
+# [Angular - The Complete Guide 2021 Edition](https://www.udemy.com/course/the-complete-guide-to-angular-2/)
 
 Instructor: Max Schwarzmuller
 
 ### Course Structure
 
-Basics
-Components & Databinding
-Directives
-Services & Dependency Injection
-Routing
-Observables
-Forms
-Pipes
-Http
-Authentication
-Optimizations & NgModules
-Deployment
-Animations & Testing
+> This readme file is a documentation of my learnings, notes and takeaways from the course. It is structured such that each major topic in the course has its own section. Each section may consist of two parts: Lecture and Project. 
+>
+> The lecture parts are outlined in the below list. Each lecture part is also accompanied by a sample application, which resides in its own subdirectory in this repo. The second part, project, is the application of the learnings from the lecture part to the Recipe Book project itself. This part can easily be identified by the **Project:** that precedes the header.
 
-### Angular Basics
+- [Angular Basics](#angular-basics)
+- [Components and Databinding](#components-and-databinding)
+- [Directives Deep Dive](#directives-deep-dive)
+- [Services and Dependency Injection](#services-and-dependency-injection)
+
+## Angular Basics
 
 ##### Creating a Component
 
@@ -44,7 +39,11 @@ Components can also be created via the cli. This method automatically creates th
 ng generate component servers
 ```
 
-### Databinding
+___
+
+## Components and Databinding
+
+> Reference activity: [cmp-databinding-start](https://github.com/demiglace0505/angular-course/tree/master/cmp-databinding-start)
 
 Databinding is essentially communication between the business logic and the template. It keeps the page up to date based on the application state.
 
@@ -188,9 +187,9 @@ export class ServerComponent {
 
 For ngClass, the format of the object is class: statement. What happens is if the serverStatus property is set to 'online', the class online will be added to the p element.
 
-<br>
-<br>
-### Setting up the RecipeBook project
+___
+
+## Project: Setting up the RecipeBook project
 
 Setting up the project can be done by using the ng new command. The *--no-stict* flag is important.
 
@@ -292,7 +291,11 @@ The data from our recipes array can be accessed using the ngFor directive and st
     </a>
 ```
 
-### Communicating between components
+___
+
+## Communicating between components
+
+> Reference activity: [cmp-databinding-start](https://github.com/demiglace0505/angular-course/tree/master/cmp-databinding-start)
 
 We can setup communication between our components using Property and Event Binding. Aside from binding to html elements, we can also use them on directives and components and their custom properties and events.
 
@@ -525,7 +528,7 @@ If a new component is created in Angular, it is instantiated and added to the DO
   }
 ```
 
-### Adding Navigation with Event Binding and ngIf
+### Project: Adding Navigation with Event Binding and ngIf
 
 We first add click event listeners in our navigation link components
 
@@ -574,7 +577,7 @@ We finally make use of **ngIf** directive to conditionally render which page to 
       <app-shopping-list *ngIf="loadedFeature !== 'recipe'" ></app-shopping-list>
 ```
 
-### Passing Data with Property Binding
+### Project: Passing Data with Property Binding
 
 For this section, we built the individual recipe item components. We first create the templates for recipe-list and recipe-item respectively.
 
@@ -636,7 +639,7 @@ export class Recipe {
 }
 ```
 
-### Event and Property Binding
+### Project: Event and Property Binding
 
 The goal of this section is to be able to display a single detailed recipe section when we click an item from our recipe list. The caveat with this approach is that we first pass from recipe-item to recipe-list and finally recipe-detail. A more elegant solution will be discussed in future chapters.
 
@@ -710,7 +713,7 @@ We can now render the data in our recipe-detail template
     <div class="col-xs-12">{{ recipe.description }}</div>
 ```
 
-### Allowing Addition of Items to the Shopping List
+### Project: Allowing Addition of Items to the Shopping List
 
 We begin by adding local references to the input fields #nameInput and #amountInput and adding the click event listener to the Add button.
 
@@ -759,9 +762,11 @@ And then we create the function onIngredientAdded in our shopping-list component
   }
 ```
 
-### Directives
+___
 
-> Reference: directives-start
+## Directives Deep Dive
+
+> Reference activity: [directives-start](https://github.com/demiglace0505/angular-course/tree/master/directives-start)
 
 Structural directives are responsible for the HTML layout. These are indicated by the **(\*)** symbol. It is important to note that multiple structural directives cannot be used at the same time on the same element. The two structural directives covered thus far are **ngFor** and **ngIf**
 
@@ -960,9 +965,7 @@ We can now use this directive in our template.
 ```
 
 
-
-
-### Implementing dropdown using directives
+### Project: Implementing dropdown using directives
 We created a dropdown.directive.ts file and in it, we make use of the **@HostSelector** decorator to listen for click events and fire the **toggleOpen** method, which sets Open to true or false. Using **@HostBinding**, we bind the class.open property of the element this directive is in to the property isOpen. This means that whenever isOpen changes, the host element is updated and the class **open** is either added or removed.
 
 The directive will not be attached initially, but whenever isOpen switches to true, it will be attached and when it switches to false, it will be removed.
@@ -985,8 +988,8 @@ export class DropdownDirective {
 ```
 
 
-### Services and Dependency Injection
-> Reference: services-start
+## Services and Dependency Injection
+> Reference activity: [services-start](https://github.com/demiglace0505/angular-course/tree/master/services-start)
 
 
 A service is a broad category encompassing any value, function or feature that an application needs. It is typically a class with a well-defined purpose and does something specific.
@@ -1112,3 +1115,5 @@ constructor(
       (status: string) => alert('New status: ' + status)
     )
 ```
+
+### Project: 
