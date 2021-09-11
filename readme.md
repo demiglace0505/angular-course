@@ -987,8 +987,10 @@ export class DropdownDirective {
 <li class="dropdown" appDropdown>
 ```
 
+___
 
 ## Services and Dependency Injection
+
 > Reference activity: [services-start](https://github.com/demiglace0505/angular-course/tree/master/services-start)
 
 
@@ -1116,4 +1118,209 @@ constructor(
     )
 ```
 
-### Project: 
+### Project: Adding Services
+
+##### Recipe Service
+
+We first set up the array of recipes in the *recipe.service.ts* file. Since objects and arrays in JavaScript are reference types, we should call **slice()** with no arguments which will return a new array which is an exact copy of the *recipes* array.
+
+```typescript
+export class RecipeService {
+  private recipes: Recipe[] = [
+    new Recipe(
+      ...
+    ),
+    new Recipe(
+      ...
+    ),
+  ];
+
+  getRecipes() {
+    return this.recipes.slice()
+  }
+}
+```
+
+We then add this as a provider to *recipes.component*
+
+```typescript
+  providers: [RecipeService]
+```
+
+And then provide it to *recipe-list* and initialize recipes with getRecipes()
+
+```typescript
+  recipes: Recipe[]
+
+  constructor(private recipeService: RecipeService) {}
+
+  ngOnInit(): void {
+    this.recipes = this.recipeService.getRecipes()
+  }
+```
+
+##### Using Services for Cross-Component Communication
+
+Currently, the app makes use of a chain of Inputs and Outputs to communicate between components. We can do better using services. Inside our recipe service, we can add an event emitter that holds a Recipe object.
+
+```typescript
+recipeSelected = new EventEmitter<Recipe>();
+```
+
+ We then inject the recipe service into recipe-item component and add use the recipeSelected event emitter. This will allow us to click a recipe.
+
+```html
+<a href="#" class="list-group-item clearfix" (click)="onSelected()">
+    <!-- recipe list -->
+```
+
+```typescript
+  constructor(private recipeService: RecipeService) {}
+
+  onSelected() {
+    this.recipeService.recipeSelected.emit(this.recipe);
+  }
+```
+
+To display the details of the clicked recipe, we create a listener in our recipes component which is subscribed for changes in the selected recipe, wherein we pass a recipe object of type Recipe, which we will be receiving from the event emitter above. This allows a new recipe to be displayed when the selected recipe is changed, in the case of this app, when a different recipe is clicked.
+
+```typescript
+  constructor(private recipeService: RecipeService) {}
+
+  ngOnInit(): void {
+    this.recipeService.recipeSelected.subscribe((recipe: Recipe) => {
+      this.selectedRecipe = recipe
+    })
+  }
+```
+
+##### Shopping List Service
+
+We provide the ShoppingListService to app.module since we would be accessing the shopping list from the recipes component later on. We set up the shopping-list service as follows. Important to note here is the **ingredientsChanged** event emitter which receives a copy of the ingredients array in the **addIngredient** method. This is necessary since we need to inform our component for changes when a new ingredient is added.
+
+```typescript
+export class ShoppingListService {
+  private ingredients: Ingredient[] = [
+    new Ingredient('apples', 5),
+    new Ingredient('oranges', 2),
+  ]
+  ingredientsChanged = new EventEmitter<Ingredient[]>()
+
+  getIngredients() {
+    return this.ingredients.slice()
+  }
+  addIngredient(ingredient: Ingredient) {
+    this.ingredients.push(ingredient)
+    this.ingredientsChanged.emit(this.ingredients.slice())
+  }
+}
+```
+
+We then need to subscribe to the ingredientsChanged event for changes in the ingredients array which is found in the shopping-list component.
+
+```typescript
+export class ShoppingListComponent implements OnInit {
+  ingredients: Ingredient[] = [];
+
+  constructor(private slService: ShoppingListService) {}
+
+  ngOnInit(): void {
+    this.ingredients = this.slService.getIngredients()
+    this.slService.ingredientsChanged.subscribe((ingredients: Ingredient[])=> {
+      this.ingredients = ingredients
+    })
+  }
+}
+```
+
+In our shopping-edit component, we can now offload the event emission to the shopping list service.
+
+```typescript
+export class ShoppingEditComponent implements OnInit {
+  @ViewChild('nameInput', { static: false }) nameInputRef: ElementRef;
+  @ViewChild('amountInput', { static: false }) amountInputRef: ElementRef;
+
+  constructor(private slService: ShoppingListService) {}
+
+  ngOnInit(): void {}
+
+  onAddItem() {
+    const name = this.nameInputRef.nativeElement.value;
+    const amount = this.amountInputRef.nativeElement.value;
+    const newIngredient = new Ingredient(name, amount);
+    this.slService.addIngredient(newIngredient)
+  }
+}
+```
+
+##### Passing Ingredients from Recipes to Shopping List
+
+At this point, we can now add ingredients to our recipe model. This will be an array of Ingredient objects.
+
+```typescript
+export class Recipe {
+  public name: string;
+  public description: string;
+  public imagePath: string;
+  public ingredients: Ingredient[]
+
+  constructor(name: string, description: string, imagePath: string, ingredients: Ingredient[]) {
+    this.name = name;
+    this.description = description;
+    this.imagePath = imagePath;
+    this.ingredients = ingredients
+  }
+}
+```
+
+We start by adding a click event listener to recipe-detail template
+
+```html
+<li><a (click)="onAddToShoppingList()" style="cursor: pointer" >Add Ingredients to Shopping List</a></li>
+```
+
+We then create an **onAddToShoppingList()** method in our recipe-detail template which then calls the **addIngredientsToShoppingList()** from recipeService, wherein we pass recipe.ingredients.
+
+```typescript
+  onAddToShoppingList() {
+    this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients)
+  }
+```
+
+We need to inject the shopping-list service into our recipe service using the **@Injectable** decorator afterwards.
+
+```typescript
+@Injectable()
+export class RecipeService {
+  private recipes: Recipe[] = [
+    new Recipe(
+      ...
+    ),
+    new Recipe(
+      ...
+    ),
+  ];
+
+  addIngredientsToShoppingList(ingredients: Ingredient[]) {
+    this.slService.addMultipleIngredients(ingredients)
+  }
+
+  ...
+}
+```
+
+In our shopping-list service, we need to implement a new method for adding multiple ingredients. We could make use of a for loop, iterate through each ingredient then individually add them, but it will be inefficient since we will be making multiple event emissions. A more efficient method would be to add all ingredients at once, then emit the event. We can do this using spread operator.
+
+```typescript
+  addMultipleIngredients(ingredients: Ingredient[]) {
+    // INEFFICIENT:
+    // for (let ingredient of ingredients) {
+    //   this.addIngredient(ingredient)
+    // }
+
+    this.ingredients.push(...ingredients)
+    this.ingredientsChanged.emit(this.ingredients.slice())
+  }
+}
+```
+
