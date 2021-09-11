@@ -1,4 +1,4 @@
-# Angular - The Complete Guide 2021 Edition
+# [Angular - The Complete Guide 2021 Edition](https://www.udemy.com/course/the-complete-guide-to-angular-2/)
 
 Instructor: Max Schwarzmuller
 
@@ -18,7 +18,9 @@ Optimizations & NgModules
 Deployment
 Animations & Testing
 
-### Getting Started
+___
+
+## Getting Started
 
 To get started with working on Angular projects, we need first to instlal the Angular CLI. Aside from the Angular CLI, Nodejs is also needed.
 
@@ -55,6 +57,12 @@ Components can also be created via the cli. This method automatically creates th
 ```
 ng generate component servers
 ```
+
+___
+
+## Components and Databinding
+
+> Reference activity: [cmp-databinding-start](https://github.com/demiglace0505/angular-course/tree/master/cmp-databinding-start)
 
 ### Databinding
 
@@ -202,15 +210,16 @@ For ngClass, the format of the object is class: statement. What happens is if th
 
 <br>
 <br>
-### Setting up the RecipeBook project
 
-Setting up the project can be done by using the ng new command. The *--no-stict* flag is important.
+## Setting up the RecipeBook project
+
+Setting up the project can be done by using the ng new command. The *--no-stict* flag is important. 
 
 ```
 ng new --no-strict RecipeBook
 ```
 
-I installed bootstrap afterwards.
+The course project makes use of bootstrap for the styling. 
 
 ```
 npm install --save bootstrap@3
@@ -227,7 +236,7 @@ In the *angular.json* file, bootstrap has to be added in the styles array
 
 ##### Setting up the components
 
-New components can be created by the command ng generate component, or by its shorthand
+New components can be created by the command `ng generate component`, or by its shorthand
 
 ```
 ng g c directory/componentName
@@ -249,7 +258,7 @@ shopping-list
 
 ##### Creating a Model for Recipes
 
-We created a model *recipe.model.ts* for our recipes. A model is simply a class that outlines what a recipe should look like.
+We created a model *recipe.model.ts* for our recipes. A model is simply a typescript class that outlines what a recipe should look like.
 
 ``` javascript
 export class Recipe {
@@ -265,7 +274,7 @@ export class Recipe {
 }
 ```
 
-There is also a shorthand method of writing the above in a constructor:
+There is also a shorthand method of writing a constructor:
 
 ``` javascript
 export class Ingredient {
@@ -275,7 +284,7 @@ export class Ingredient {
 }
 ```
 
-We then declared this model to be used in the recipe-list component *recipe-list.component.ts*
+We then declared this model to be used in the recipe-list component *recipe-list.component.ts*. The recipes property will contain an array of Recipe objects, and is instantiated as an empty array.
 
 ``` javascript
 export class RecipeListComponent implements OnInit {
@@ -368,7 +377,7 @@ export class AppComponent {
 
 To emit events, 2 new properties has to be added to the cockpit component. These are instantiated from the **EventEmitter** class. We also need the **@Output** decorator to make the methods listenable from outside.
 
-``` javascript
+``` typescript
 export class CockpitComponent implements OnInit {
   @Output("srvCreated") serverCreated = new EventEmitter<{
     serverName: string;
@@ -529,3 +538,4 @@ If a new component is created in Angular, it is instantiated and added to the DO
     );
   }
 ```
+
