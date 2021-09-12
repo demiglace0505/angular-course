@@ -1324,3 +1324,291 @@ In our shopping-list service, we need to implement a new method for adding multi
 }
 ```
 
+___
+
+## Routing
+
+> Reference activity: 
+
+We register our routing in the app.module file. The path property defines the path for the url, while the component property tells angular what should be loaded in that route. We also need to import **RouterModule** to our app.module. The RouterModule's special method forRoot() allows us to register routes.
+
+```typescript
+const appRoutes: Routes = [
+  {
+    path: '',
+    component: HomeComponent
+  },
+  {
+    path: 'users',
+    component: UsersComponent
+  },
+  {
+    path: 'servers',
+    component: ServersComponent
+  },
+]
+
+@NgModule({
+  ...
+  imports: [
+    ...
+    RouterModule.forRoot(appRoutes)
+  ],
+```
+
+We can now add the **router-outlet** directive into our template. This marks the place in our document where we want angular router to load the component of the currently selected route.
+
+```html
+<div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+```
+
+Navigating through links can be done using the directive **routerLink** that angular provides. We can also make use of property binding for routerLink wherein we pass an array of individual path elements as illustrated below.
+
+```html
+<li role="presentation" class="active"><a routerLink="/">Home</a></li>
+<li role="presentation"><a routerLink="/servers">Servers</a></li>
+<li role="presentation"><a [routerLink]="['/users']">Users</a></li>
+```
+
+##### Styling Active Router Links
+
+Angular gives us the directive **routerLinkActive** to dynamically style an element. In the example below, active is the class used by bootstrap to define an active nav tab. We however need to make use of **routerLinkActiveOptions** as a property binding since without it, the path `/` will be active for every path, because the behavior of routerLinkActive is that it sets the link to active if the URL **contains** the beginning of the path, in this case, `/` will be active for all paths.
+
+We pass the javascript object `exact: true` to routerLinkActiveOptions to tell angular that the link will be active if and only if its address is /.
+
+```html
+<li role="presentation" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" ><a routerLink="/">Home</a></li>
+<li role="presentation" routerLinkActive="active"><a routerLink="/servers">Servers</a></li>
+<li role="presentation" routerLinkActive="active"><a [routerLink]="['/users']">Users</a></li>
+```
+
+##### Navigating Programmatically
+
+We can navigate programatically by injecting **Router** to a component. A route is defined by an array of the single or different elements of a new path.
+
+```typescript
+export class HomeComponent implements OnInit {
+  constructor(private router: Router) { }
+
+  onLoadServers() {
+    this.router.navigate(['/servers'])
+  }
+}
+```
+
+Unlike routerLink which always knows the current loaded route, Router does not. If we want to tell navigate where we currently are, we can to pass a second argument. We need to inject the current active route via **ActivatedRoute**. For the below example, if we call onReload while we are on `/servers`, we will end up in `/servers/servers`
+
+```typescript
+export class ServersComponent implements OnInit {
+  ...
+  constructor(private router: Router, private route: ActivatedRoute) { }
+
+  onReload() {
+    this.router.navigate(['servers'], {relativeTo: this.route})
+  }
+}
+```
+
+##### Passing Parameters to Routes
+
+We can add dynamic segments to our paths using `:`.
+
+```
+const appRoutes: Routes = [ 
+  {
+    path: 'users/:id/:name',
+    component: UserComponent
+  },
+]
+```
+
+If we want to access the parameters that are encoded in the url, we can inject **ActivatedRoute**, and then retrieve the parameters from the snapshot.params object.
+
+```typescript
+export class UserComponent implements OnInit {
+  user: {id: number, name: string};
+
+  constructor(private route: ActivatedRoute) { }
+
+  ngOnInit() {
+    this.user = {
+      id: this.route.snapshot.params['id'],
+      name: this.route.snapshot.params['name']
+    }
+  }
+}
+```
+
+We can now access the parameters in our template.
+
+```html
+<p>User with ID {{user.id}} loaded.</p>
+<p>User name is {{user.name}}</p>
+```
+
+The following URL `http://localhost:4200/users/05/doge` will output the following:
+
+```
+User with ID 05 loaded.
+User name is doge
+```
+
+The above implementation however is flawed, because if we reaccess the same endpoint `/id/name` from within this endpoint, the returned values will stay the same. This is because of **snapshot**. Instead, we can set up a subscription using **params** which is an observable.
+
+An observable is a feature added by some third-party package which allows us to work with asynchronous tasks. In other words, it is a way to subscribe to some future event and then execute some command when it happens.
+
+```typescript
+export class UserComponent implements OnInit, OnDestroy {
+  user: {id: number, name: string};
+  paramsSubscription: Subscription
+
+  constructor(private route: ActivatedRoute) { }
+
+  ngOnInit() {
+    ...
+    this.paramsSubscription = this.route.params.subscribe(
+      (params: Params) => {
+        this.user.id= params['id']
+        this.user.name = params['name']
+      }
+    )
+  }
+
+  ngOnDestroy() {
+    this.paramsSubscription.unsubscribe()
+  }
+}
+```
+
+**params.subscribe** takes in a function that will be fired whenever new data is sent through and the parameters have changed. We implement **onDestroy** because we need to unsubscribe to the subscription once the component is destroyed to avoid memory leaks. This is optional for this component since angular does this behind the scenes, but if we were to write our own observables, this should be considered.
+
+##### Nested Routing
+
+Child routes can be setup using the **children** property of Routes. 
+
+```typescript
+{
+    path: "servers",
+    component: ServersComponent,
+    children: [
+      {
+        path: ":id/edit",
+        component: EditServerComponent,
+      },
+      {
+        path: ":id",
+        component: ServerComponent,
+      },
+    ],
+  },
+```
+
+These child routes will need an outlet where it will be loaded. In our servers.component template, we add the router-outlet. This will add a new hook that will be used on all child routes of the route being loaded on `/servers`
+
+```html
+<router-outlet></router-outlet>
+```
+
+##### Query Parameters and Fragments
+
+We can add query parameters by making use of the **queryParams** property. It is important to note that **queryParams** is not a directive, it is a bindable property of the routerLink directive. We also have the property fragment which adds a # anchor.
+
+```html
+<a
+  [routerLink]="['/servers', 5, 'edit']"
+  [queryParams]="{allowEdit: '1'}"
+  fragment="loading"
+  href="#"
+  class="list-group-item"
+  *ngFor="let server of servers"
+>
+```
+
+Clicking the above link will bring us to `/servers/5/edit?allowEdit=1#loading`
+
+We can also do this programatically. Take for instance the following template wherein we pass a number to the onLoadServers method:
+
+```html
+<button class="btn btn-primary" (click)="onLoadServers(1)">Load Servers</button>
+```
+
+```typescript
+export class HomeComponent implements OnInit {
+  constructor(private router: Router) {}
+
+  ngOnInit() {}
+
+  onLoadServers(id: number) {
+    this.router.navigate(["/servers", id, "edit"], {
+      queryParams: { allowEdit: "1" },
+      fragment: "testing",
+    });
+  }
+}
+```
+
+Clicking on the button will bring us to `http://localhost:4200/servers/1/edit?allowEdit=1#testing`
+
+To retrieve query parameters and fragments, we need to inject **ActivatedRoute**. Similar to passing parameters to routes as above, we can use **snapshot** but it brings the same disadvantages.
+
+```typescript
+  constructor(private route: ActivatedRoute) { }
+
+  ngOnInit() {
+    console.log(this.route.snapshot.queryParams)
+    console.log(this.route.snapshot.fragment)
+  }
+```
+
+##### Handling of Query Parameters
+
+In the example below, we only allow the user to edit the server with an id of 3.
+
+```html
+      <a
+        [routerLink]="['/servers', server.id]"
+        [queryParams]="{allowEdit: server.id === 3 ? '1' : '0'}"
+        fragment="loading"
+        href="#"
+        class="list-group-item"
+        *ngFor="let server of servers"
+      >
+```
+
+Inside the edit-server component, we need to add a new property allowEdit and setup a subscription to it. The following code simply sets allowEdit property to true if the **allowEdit link parameter** is set to 1.
+
+```typescript
+export class EditServerComponent implements OnInit {
+  allowEdit = false
+  ...
+  ngOnInit() {
+    ...
+    this.route.queryParams.subscribe(
+      (queryParams: Params) => {
+        this.allowEdit = queryParams['allowEdit'] === '1' ? true : false
+      }
+    )
+  }
+```
+
+The problem is, once we navigate away from the page, ie, when clicking the edit button, we will lose our query parameters.
+
+To preserve the query parameters once we navigate further into our component, we can use the **queryParamsHandling** property of Router's navigate method. The following is to be added in server component.
+
+```html
+<button class="btn btn-primary" (click)="onEdit()" >Edit Server</button>
+```
+
+```typescript
+  onEdit() {
+    this.router.navigate(['edit'], {
+      relativeTo: this.route, 
+      queryParamsHandling: 'preserve'
+    })
+  }
+```
+
