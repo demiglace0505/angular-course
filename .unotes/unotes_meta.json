@@ -211,6 +211,12 @@
       "isOrdered": true,
       "folders": {},
       "files": {}
+    },
+    "routing-start": {
+      "name": "routing-start",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
     }
   },
   "files": {

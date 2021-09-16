@@ -4,14 +4,14 @@ Instructor: Max Schwarzmuller
 
 ### Course Structure
 
-> This readme file is a documentation of my learnings, notes and takeaways from the course. It is structured such that each major topic in the course has its own section. Each section may consist of two parts: Lecture and Project. 
->
+> This readme file is a documentation of my learnings, notes and takeaways from the course. It is structured such that each major topic in the course has its own section. Each section may consist of two parts: Lecture and Project.
+> 
 > The lecture parts are outlined in the below list. Each lecture part is also accompanied by a sample application, which resides in its own subdirectory in this repo. The second part, project, is the application of the learnings from the lecture part to the Recipe Book project itself. This part can easily be identified by the **Project:** that precedes the header.
 
-- [Angular Basics](#angular-basics)
-- [Components and Databinding](#components-and-databinding)
-- [Directives Deep Dive](#directives-deep-dive)
-- [Services and Dependency Injection](#services-and-dependency-injection)
+* [Angular Basics](#angular-basics)
+* [Components and Databinding](#components-and-databinding)
+* [Directives Deep Dive](#directives-deep-dive)
+* [Services and Dependency Injection](#services-and-dependency-injection)
 
 ## Angular Basics
 
@@ -39,7 +39,7 @@ Components can also be created via the cli. This method automatically creates th
 ng generate component servers
 ```
 
-___
+- - -
 
 ## Components and Databinding
 
@@ -187,7 +187,7 @@ export class ServerComponent {
 
 For ngClass, the format of the object is class: statement. What happens is if the serverStatus property is set to 'online', the class online will be added to the p element.
 
-___
+- - -
 
 ## Project: Setting up the RecipeBook project
 
@@ -291,7 +291,7 @@ The data from our recipes array can be accessed using the ngFor directive and st
     </a>
 ```
 
-___
+- - -
 
 ## Communicating between components
 
@@ -489,16 +489,16 @@ We can use the ng-content directive in a place where we want to render content. 
 
 If a new component is created in Angular, it is instantiated and added to the DOM.
 
-| Hook                  | Description                                                  |
-| --------------------- | ------------------------------------------------------------ |
-| ngOnChanges           | Called after a bound input property chagnes                  |
-| ngOnInit              | Called once a component is initialized. Runs after the constructor |
-| ngDoCheck             | Called during every change detection run                     |
-| ngAfterContentInit    | Called after the content projected by ng-content has been projected into view |
-| ngAfterContentChecked | Called every time the projected content has been checked     |
-| ngAfterViewInit       | Called after the component and child views has been initialized |
-| ngAfterViewChecked    | Called every time the view and child views have been checked |
-| ngOnDestroy           | Called once the component is about to be destroyed           |
+| Hook | Description |
+| ---- | ----------- |
+| ngOnChanges | Called after a bound input property chagnes |
+| ngOnInit | Called once a component is initialized. Runs after the constructor |
+| ngDoCheck | Called during every change detection run |
+| ngAfterContentInit | Called after the content projected by ng-content has been projected into view |
+| ngAfterContentChecked | Called every time the projected content has been checked |
+| ngAfterViewInit | Called after the component and child views has been initialized |
+| ngAfterViewChecked | Called every time the view and child views have been checked |
+| ngOnDestroy | Called once the component is about to be destroyed |
 
 ##### Accessing ng-content with @ContentChild
 
@@ -762,7 +762,7 @@ And then we create the function onIngredientAdded in our shopping-list component
   }
 ```
 
-___
+- - -
 
 ## Directives Deep Dive
 
@@ -878,7 +878,7 @@ An even easier way, without using the renderer, is through the use of **@HostBin
 
 We can make of custom property binding to pass on parameters
 
-```typescript
+``` typescript
 export class BetterHighlightDirective implements OnInit {
   @Input() defaultColor: string = "transparent";
   @Input() highlightColor: string = "blue";
@@ -900,7 +900,8 @@ export class BetterHighlightDirective implements OnInit {
 ```
 
 Specifying our colors in the template:
-```html
+
+``` html
       <p
         appBetterHighlight
         [defaultColor]="'yellow'"
@@ -911,14 +912,16 @@ Specifying our colors in the template:
 ```
 
 Note that if we set an alias that has the same name as our directive, we need to enclose the directive with a square bracket. In the example below, appBetterHighlight.
-```typescript
+
+``` typescript
 export class BetterHighlightDirective implements OnInit {
   @Input() defaultColor: string = "transparent";
   @Input('appBetterHighlight') highlightColor: string = "blue";
   ...
 }
 ```
-```html
+
+``` html
       <p
         [appBetterHighlight]="'orange'"
         [defaultColor]="'yellow'"
@@ -931,7 +934,7 @@ export class BetterHighlightDirective implements OnInit {
 
 We created our own structural directive unless.directive.ts, which is the opposite of ngIf. We bind to a property called 'appUnless' which should be the same name as the selector, but whenever this condition changes, a method should be executed that's why it is declared as a **setter**. It receives a boolean condition as its parameter. To access the template and the place in the document where we want to render, we can inject **TemplateRef** and **ViewContainerRef** in the constructor.
 
-```typescript
+``` typescript
 export class UnlessDirective {
   @Input() set appUnless(condition: boolean) {
     if (!condition) {
@@ -949,7 +952,8 @@ export class UnlessDirective {
 ```
 
 We can now use this directive in our template.
-```html
+
+``` html
 <div *appUnless="onlyOdd">
           <li
             class="list-group-item"
@@ -964,13 +968,13 @@ We can now use this directive in our template.
         </div>
 ```
 
-
 ### Project: Implementing dropdown using directives
+
 We created a dropdown.directive.ts file and in it, we make use of the **@HostSelector** decorator to listen for click events and fire the **toggleOpen** method, which sets Open to true or false. Using **@HostBinding**, we bind the class.open property of the element this directive is in to the property isOpen. This means that whenever isOpen changes, the host element is updated and the class **open** is either added or removed.
 
 The directive will not be attached initially, but whenever isOpen switches to true, it will be attached and when it switches to false, it will be removed.
 
-```typescript
+``` typescript
 @Directive({
   selector: '[appDropdown]',
 })
@@ -983,16 +987,15 @@ export class DropdownDirective {
 }
 ```
 
-```html
+``` html
 <li class="dropdown" appDropdown>
 ```
 
-___
+- - -
 
 ## Services and Dependency Injection
 
 > Reference activity: [services-start](https://github.com/demiglace0505/angular-course/tree/master/services-start)
-
 
 A service is a broad category encompassing any value, function or feature that an application needs. It is typically a class with a well-defined purpose and does something specific.
 
@@ -1000,7 +1003,7 @@ A service is a broad category encompassing any value, function or feature that a
 
 A service is created with a name.service.ts naming convention. It is important to note that we don't need to import decorators in order to define a service.
 
-```typescript
+``` typescript
 export class LoggingService {
   logStatusChange(status: string) {
     console.log("A server status changed, new status: " + status);
@@ -1010,7 +1013,7 @@ export class LoggingService {
 
 To use a service, we need to inject it into components using Angular's dependency injector. We pass the LoggingService class into our constructor and add it in the component's **providers** array.
 
-```typescript
+``` typescript
 @Component({
   ...
   providers: [LoggingService]
@@ -1029,14 +1032,13 @@ export class NewAccountComponent {
     this.loggingService.logStatusChange(accountStatus)
   }
 }
-
 ```
 
 ##### Data Service
 
 Another typical use case for services is for storing and managing data.
 
-```typescript
+``` typescript
 export class AccountsService {
   accounts = [
     {
@@ -1054,12 +1056,11 @@ export class AccountsService {
     this.accounts[id].status = status;
   }
 }
-
 ```
 
 And our app component simply becomes:
 
-```typescript
+``` typescript
 export class AppComponent implements OnInit {
   accounts: { name: string; status: string }[] = [];
 
@@ -1072,7 +1073,8 @@ export class AppComponent implements OnInit {
 ```
 
 It is important to note that injection of services follows the Hierarchical Injection, which means that the children of a component will also get injected. In the case of this app, we don't want to provide **AccountService** to the children (new-account and account), because that would give us a different instance of AccountService. We should only provide AccountService into the parent app component. We shouldn't remove it in the constructor though.
-```typescript
+
+``` typescript
   //app.component.ts
   providers: [AccountsService],
   //new-account.component.ts
@@ -1085,7 +1087,7 @@ It is important to note that injection of services follows the Hierarchical Inje
 
 To inject a service into a service, we need to provide a service to the highest in the hierarchy, the app module. If we want to inject a service into a service, we need to add the **@Injectable** decorator to the receiving service.
 
-```typescript
+``` typescript
 @Injectable()
 export class AccountsService {
   ...
@@ -1096,11 +1098,14 @@ export class AccountsService {
 ##### Cross-Component Communication with Services
 
 We can make components communicate with each other using services. We have a triggering component and a listening component. We first add an event emitter in our service.
-```typescript
+
+``` typescript
 statusUpdated = new EventEmitter<string>();
 ```
+
 Then access it and emit an event via AccountsService in our account component
-```typescript
+
+``` typescript
   onSetTo(status: string) {
     ...
     this.accountsService.statusUpdated.emit(status)
@@ -1108,7 +1113,8 @@ Then access it and emit an event via AccountsService in our account component
 ```
 
 And finally subscribe to it from the new-account component
-```typescript
+
+``` typescript
 constructor(
     private loggingService: LoggingService,
     private accountsService: AccountsService
@@ -1124,7 +1130,7 @@ constructor(
 
 We first set up the array of recipes in the *recipe.service.ts* file. Since objects and arrays in JavaScript are reference types, we should call **slice()** with no arguments which will return a new array which is an exact copy of the *recipes* array.
 
-```typescript
+``` typescript
 export class RecipeService {
   private recipes: Recipe[] = [
     new Recipe(
@@ -1143,13 +1149,13 @@ export class RecipeService {
 
 We then add this as a provider to *recipes.component*
 
-```typescript
+``` typescript
   providers: [RecipeService]
 ```
 
 And then provide it to *recipe-list* and initialize recipes with getRecipes()
 
-```typescript
+``` typescript
   recipes: Recipe[]
 
   constructor(private recipeService: RecipeService) {}
@@ -1163,18 +1169,18 @@ And then provide it to *recipe-list* and initialize recipes with getRecipes()
 
 Currently, the app makes use of a chain of Inputs and Outputs to communicate between components. We can do better using services. Inside our recipe service, we can add an event emitter that holds a Recipe object.
 
-```typescript
+``` typescript
 recipeSelected = new EventEmitter<Recipe>();
 ```
 
- We then inject the recipe service into recipe-item component and add use the recipeSelected event emitter. This will allow us to click a recipe.
+We then inject the recipe service into recipe-item component and add use the recipeSelected event emitter. This will allow us to click a recipe.
 
-```html
+``` html
 <a href="#" class="list-group-item clearfix" (click)="onSelected()">
     <!-- recipe list -->
 ```
 
-```typescript
+``` typescript
   constructor(private recipeService: RecipeService) {}
 
   onSelected() {
@@ -1184,7 +1190,7 @@ recipeSelected = new EventEmitter<Recipe>();
 
 To display the details of the clicked recipe, we create a listener in our recipes component which is subscribed for changes in the selected recipe, wherein we pass a recipe object of type Recipe, which we will be receiving from the event emitter above. This allows a new recipe to be displayed when the selected recipe is changed, in the case of this app, when a different recipe is clicked.
 
-```typescript
+``` typescript
   constructor(private recipeService: RecipeService) {}
 
   ngOnInit(): void {
@@ -1198,7 +1204,7 @@ To display the details of the clicked recipe, we create a listener in our recipe
 
 We provide the ShoppingListService to app.module since we would be accessing the shopping list from the recipes component later on. We set up the shopping-list service as follows. Important to note here is the **ingredientsChanged** event emitter which receives a copy of the ingredients array in the **addIngredient** method. This is necessary since we need to inform our component for changes when a new ingredient is added.
 
-```typescript
+``` typescript
 export class ShoppingListService {
   private ingredients: Ingredient[] = [
     new Ingredient('apples', 5),
@@ -1218,7 +1224,7 @@ export class ShoppingListService {
 
 We then need to subscribe to the ingredientsChanged event for changes in the ingredients array which is found in the shopping-list component.
 
-```typescript
+``` typescript
 export class ShoppingListComponent implements OnInit {
   ingredients: Ingredient[] = [];
 
@@ -1235,7 +1241,7 @@ export class ShoppingListComponent implements OnInit {
 
 In our shopping-edit component, we can now offload the event emission to the shopping list service.
 
-```typescript
+``` typescript
 export class ShoppingEditComponent implements OnInit {
   @ViewChild('nameInput', { static: false }) nameInputRef: ElementRef;
   @ViewChild('amountInput', { static: false }) amountInputRef: ElementRef;
@@ -1257,7 +1263,7 @@ export class ShoppingEditComponent implements OnInit {
 
 At this point, we can now add ingredients to our recipe model. This will be an array of Ingredient objects.
 
-```typescript
+``` typescript
 export class Recipe {
   public name: string;
   public description: string;
@@ -1275,13 +1281,13 @@ export class Recipe {
 
 We start by adding a click event listener to recipe-detail template
 
-```html
+``` html
 <li><a (click)="onAddToShoppingList()" style="cursor: pointer" >Add Ingredients to Shopping List</a></li>
 ```
 
 We then create an **onAddToShoppingList()** method in our recipe-detail template which then calls the **addIngredientsToShoppingList()** from recipeService, wherein we pass recipe.ingredients.
 
-```typescript
+``` typescript
   onAddToShoppingList() {
     this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients)
   }
@@ -1289,7 +1295,7 @@ We then create an **onAddToShoppingList()** method in our recipe-detail template
 
 We need to inject the shopping-list service into our recipe service using the **@Injectable** decorator afterwards.
 
-```typescript
+``` typescript
 @Injectable()
 export class RecipeService {
   private recipes: Recipe[] = [
@@ -1311,7 +1317,7 @@ export class RecipeService {
 
 In our shopping-list service, we need to implement a new method for adding multiple ingredients. We could make use of a for loop, iterate through each ingredient then individually add them, but it will be inefficient since we will be making multiple event emissions. A more efficient method would be to add all ingredients at once, then emit the event. We can do this using spread operator.
 
-```typescript
+``` typescript
   addMultipleIngredients(ingredients: Ingredient[]) {
     // INEFFICIENT:
     // for (let ingredient of ingredients) {
@@ -1324,15 +1330,15 @@ In our shopping-list service, we need to implement a new method for adding multi
 }
 ```
 
-___
+- - -
 
 ## Routing
 
-> Reference activity: 
+> Reference activity:
 
 We register our routing in the app.module file. The path property defines the path for the url, while the component property tells angular what should be loaded in that route. We also need to import **RouterModule** to our app.module. The RouterModule's special method forRoot() allows us to register routes.
 
-```typescript
+``` typescript
 const appRoutes: Routes = [
   {
     path: '',
@@ -1358,7 +1364,7 @@ const appRoutes: Routes = [
 
 We can now add the **router-outlet** directive into our template. This marks the place in our document where we want angular router to load the component of the currently selected route.
 
-```html
+``` html
 <div class="row">
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
       <router-outlet></router-outlet>
@@ -1368,7 +1374,7 @@ We can now add the **router-outlet** directive into our template. This marks the
 
 Navigating through links can be done using the directive **routerLink** that angular provides. We can also make use of property binding for routerLink wherein we pass an array of individual path elements as illustrated below.
 
-```html
+``` html
 <li role="presentation" class="active"><a routerLink="/">Home</a></li>
 <li role="presentation"><a routerLink="/servers">Servers</a></li>
 <li role="presentation"><a [routerLink]="['/users']">Users</a></li>
@@ -1380,7 +1386,7 @@ Angular gives us the directive **routerLinkActive** to dynamically style an elem
 
 We pass the javascript object `exact: true` to routerLinkActiveOptions to tell angular that the link will be active if and only if its address is /.
 
-```html
+``` html
 <li role="presentation" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" ><a routerLink="/">Home</a></li>
 <li role="presentation" routerLinkActive="active"><a routerLink="/servers">Servers</a></li>
 <li role="presentation" routerLinkActive="active"><a [routerLink]="['/users']">Users</a></li>
@@ -1390,7 +1396,7 @@ We pass the javascript object `exact: true` to routerLinkActiveOptions to tell a
 
 We can navigate programatically by injecting **Router** to a component. A route is defined by an array of the single or different elements of a new path.
 
-```typescript
+``` typescript
 export class HomeComponent implements OnInit {
   constructor(private router: Router) { }
 
@@ -1402,7 +1408,7 @@ export class HomeComponent implements OnInit {
 
 Unlike routerLink which always knows the current loaded route, Router does not. If we want to tell navigate where we currently are, we can to pass a second argument. We need to inject the current active route via **ActivatedRoute**. For the below example, if we call onReload while we are on `/servers`, we will end up in `/servers/servers`
 
-```typescript
+``` typescript
 export class ServersComponent implements OnInit {
   ...
   constructor(private router: Router, private route: ActivatedRoute) { }
@@ -1428,7 +1434,7 @@ const appRoutes: Routes = [
 
 If we want to access the parameters that are encoded in the url, we can inject **ActivatedRoute**, and then retrieve the parameters from the snapshot.params object.
 
-```typescript
+``` typescript
 export class UserComponent implements OnInit {
   user: {id: number, name: string};
 
@@ -1445,7 +1451,7 @@ export class UserComponent implements OnInit {
 
 We can now access the parameters in our template.
 
-```html
+``` html
 <p>User with ID {{user.id}} loaded.</p>
 <p>User name is {{user.name}}</p>
 ```
@@ -1461,7 +1467,7 @@ The above implementation however is flawed, because if we reaccess the same endp
 
 An observable is a feature added by some third-party package which allows us to work with asynchronous tasks. In other words, it is a way to subscribe to some future event and then execute some command when it happens.
 
-```typescript
+``` typescript
 export class UserComponent implements OnInit, OnDestroy {
   user: {id: number, name: string};
   paramsSubscription: Subscription
@@ -1488,9 +1494,9 @@ export class UserComponent implements OnInit, OnDestroy {
 
 ##### Nested Routing
 
-Child routes can be setup using the **children** property of Routes. 
+Child routes can be setup using the **children** property of Routes.
 
-```typescript
+``` typescript
 {
     path: "servers",
     component: ServersComponent,
@@ -1509,7 +1515,7 @@ Child routes can be setup using the **children** property of Routes.
 
 These child routes will need an outlet where it will be loaded. In our servers.component template, we add the router-outlet. This will add a new hook that will be used on all child routes of the route being loaded on `/servers`
 
-```html
+``` html
 <router-outlet></router-outlet>
 ```
 
@@ -1517,7 +1523,7 @@ These child routes will need an outlet where it will be loaded. In our servers.c
 
 We can add query parameters by making use of the **queryParams** property. It is important to note that **queryParams** is not a directive, it is a bindable property of the routerLink directive. We also have the property fragment which adds a # anchor.
 
-```html
+``` html
 <a
   [routerLink]="['/servers', 5, 'edit']"
   [queryParams]="{allowEdit: '1'}"
@@ -1532,11 +1538,11 @@ Clicking the above link will bring us to `/servers/5/edit?allowEdit=1#loading`
 
 We can also do this programatically. Take for instance the following template wherein we pass a number to the onLoadServers method:
 
-```html
+``` html
 <button class="btn btn-primary" (click)="onLoadServers(1)">Load Servers</button>
 ```
 
-```typescript
+``` typescript
 export class HomeComponent implements OnInit {
   constructor(private router: Router) {}
 
@@ -1555,7 +1561,7 @@ Clicking on the button will bring us to `http://localhost:4200/servers/1/edit?al
 
 To retrieve query parameters and fragments, we need to inject **ActivatedRoute**. Similar to passing parameters to routes as above, we can use **snapshot** but it brings the same disadvantages.
 
-```typescript
+``` typescript
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
@@ -1568,7 +1574,7 @@ To retrieve query parameters and fragments, we need to inject **ActivatedRoute**
 
 In the example below, we only allow the user to edit the server with an id of 3.
 
-```html
+``` html
       <a
         [routerLink]="['/servers', server.id]"
         [queryParams]="{allowEdit: server.id === 3 ? '1' : '0'}"
@@ -1581,7 +1587,7 @@ In the example below, we only allow the user to edit the server with an id of 3.
 
 Inside the edit-server component, we need to add a new property allowEdit and setup a subscription to it. The following code simply sets allowEdit property to true if the **allowEdit link parameter** is set to 1.
 
-```typescript
+``` typescript
 export class EditServerComponent implements OnInit {
   allowEdit = false
   ...
@@ -1599,16 +1605,554 @@ The problem is, once we navigate away from the page, ie, when clicking the edit 
 
 To preserve the query parameters once we navigate further into our component, we can use the **queryParamsHandling** property of Router's navigate method. The following is to be added in server component.
 
-```html
+``` html
 <button class="btn btn-primary" (click)="onEdit()" >Edit Server</button>
 ```
 
-```typescript
+``` typescript
   onEdit() {
     this.router.navigate(['edit'], {
       relativeTo: this.route, 
       queryParamsHandling: 'preserve'
     })
+  }
+```
+
+##### Redirecting and Wildcards
+
+We can rediret the user using the **redirectTo** property of Routes. The double asterisk path means to catch all paths that are not included in the app. This route should be the last to be declared.
+
+``` typescript
+  ...
+  {
+    path: "not-found",
+    component: PageNotFoundComponent,
+  },
+  {
+    path: "**",
+    redirectTo: "/not-found",
+  },
+```
+
+##### Outsourcing Routing to its own Module
+
+We created a new file *app-routing.module.ts*. We need to pass the RouterModule to the export property of NgModule, so that it will be accessible in the destination module.
+
+``` typescript
+const appRoutes: Routes = [
+  ...
+  ]
+
+@NgModule({
+  imports: [RouterModule.forRoot(appRoutes)],
+  exports: [RouterModule],
+})
+
+export class AppRoutingModule {}
+```
+
+We can now then import it to app.module
+
+``` typescript
+  imports: [
+    ...
+    AppRoutingModule
+  ],
+```
+
+##### Route Guards
+
+A Route Guard is a functionality that is executed before a route is loaded or once we want to leave a route.
+
+We first created a fake authentication service *auth.service.ts*
+
+``` typescript
+export class AuthService {
+  loggedIn = false;
+
+  isAuthenticated() {
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.loggedIn);
+      }, 800);
+    });
+    return promise;
+  }
+
+  login() {
+    this.loggedIn = true;
+  }
+
+  logout() {
+    this.loggedIn = false;
+  }
+}
+```
+
+We then create the service *auth-guard.service.ts* which implements **canActivate**. Our canActivate method takes 2 arguments: AcitvatedRouteSnapshot and RouterStateSnapshot.
+
+``` typescript
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    return this.authService.isAuthenticated().then((authenticated: boolean) => {
+      if (authenticated) {
+        return true;
+      } else {
+        this.router.navigate(["/"]);
+      }
+    });
+  }
+}
+```
+
+We inject Router and our AuthService into this service. The canActivate method returns a promise in this case. To use the guard, we should define in our app-routing module which routes should be protected by the guard. With the below change, the routes for /servers will be guarded. This means that servers and its child routes if AuthGuard's **canActivate** method returns true
+
+``` typescript
+    path: "servers",
+    canActivate: [AuthGuard],
+    component: ServersComponent,
+    children: [
+      {
+        path: ":id/edit",
+        component: EditServerComponent,
+      },
+      {
+        path: ":id",
+        component: ServerComponent,
+      },
+    ],
+  },
+```
+
+We will then need to provide them in the app module
+
+``` typescript
+providers: [ServersService, AuthService, AuthGuard],
+```
+
+We can also protect child routes with **canActivateChild**. Since this example will use the same logic as canActivate, we just simply returned canActivate.
+
+``` typescript
+  canActivateChild(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    return this.canActivate(route, state);
+  }
+```
+
+Using it is the same as above, we just need to set the canActivateChild property of Route.
+
+``` typescript
+    path: "servers",
+    canActivateChild: [AuthGuard],
+    component: ServersComponent,
+    children: [
+      {
+        path: ":id/edit",
+        component: EditServerComponent,
+      },
+      {
+        path: ":id",
+        component: ServerComponent,
+      },
+    ],
+  },
+```
+
+This now allows us to access `/servers`, but when we navigate to a child component, we get redirected back to home in 800ms.
+
+To test out the route guards, we created a fake authentication service in the home component.
+
+``` html
+<button class="btn btn-default" (click)="onLogin()">Login</button>
+<button class="btn btn-default" (click)="onLogout()">Logout</button>
+```
+
+``` typescript
+export class HomeComponent implements OnInit {
+  constructor(private router: Router, private authService: AuthService) {}
+
+  ...
+  onLogin() {
+    this.authService.login();
+  }
+
+  onLogout() {
+    this.authService.logout();
+  }
+}
+```
+
+##### Controlling Navigation with canDeactivate
+
+With canDeactivate, we can control whether a user is allowed to leave a route. We start by adding a new property to edit-server which we set to true once a server instance is updated. With this, we redirect the user afterwards using Router. In this case, the user is redirected one level above relative to the current route.
+
+``` typescript
+  constructor(
+    private serversService: ServersService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  changesSaved = false;
+
+  onUpdateServer() {
+    ...
+    this.changesSaved = true;
+    this.router.navigate(["../"], { relativeTo: this.route });
+  }
+```
+
+To prevent users from accidentally navigating away, we can make use of canDeactivate method. We first create a new service under edit-server directory called *can-deactivate-guard*. In it, we create an interface **CanComponentDeactivate** has a method canDeactivate() that takes no arguments and returns either an Observable that resolves to a boolean, a promise that resolves to a boolean or a boolean.
+
+The class CanDeactivateGuard is then created which implements the generic type **CanDeactivate** from angular router which wraps our CanComponentDeactivate interface. The canDeactivate() method of this class will be called by angular router once we try to leave a route.
+
+``` typescript
+export interface CanComponentDeactivate {
+  canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
+}
+
+export class CanDeactivateGuard
+  implements CanDeactivate<CanComponentDeactivate>
+{
+  canDeactivate(
+    component: CanComponentDeactivate,
+    currentRoute: ActivatedRouteSnapshot,
+    currentState: RouterStateSnapshot,
+    nextState: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    return component.canDeactivate();
+  }
+}
+```
+
+We then add the guard service to our app-routing module
+
+``` typescript
+      {
+        path: ":id/edit",
+        component: EditServerComponent,
+        canDeactivate: [CanDeactivateGuard]
+      },
+```
+
+and provide it to our app module
+
+``` typescript
+providers: [ServersService, AuthService, AuthGuard, CanDeactivateGuard],
+```
+
+We now implement the interface CanComponentDeactivate to our edit-server component. Here is where we implement the actual logic for checking if we are allowed to leave a route.
+
+``` typescript
+  canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
+    if (!this.allowEdit) {
+      return true;
+    }
+    if (
+      (this.serverName !== this.server.name ||
+        this.serverStatus !== this.server.status) &&
+      !this.changesSaved
+    ) {
+      return confirm("Do you want to discard changes?");
+    } else {
+      true;
+    }
+  }
+}
+```
+
+##### Passing Data to a Route
+
+We can pass static data to a route using the *data* property of Route.
+
+``` typescript
+  {
+    path: "not-found",
+    component: ErrorPageComponent,
+    data: {
+      message: "Page not found!",
+    },
+  },
+```
+
+We can then use it in our error-page component. We can either assign it directly into a property, or make use of subscribe which is useful in case the data is expected to change.
+
+``` typescript
+export class ErrorPageComponent implements OnInit {
+  errorMessage: string;
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    // this.errorMessage = this.route.snapshot.data["message"];
+    this.route.data.subscribe((data: Data) => {
+      this.errorMessage = data["message"];
+    });
+  }
+}
+```
+
+Aside from static data, we can also fetch dynamic data. First we set up a resolver server-resolver.service.ts that will be run before a route is rendered. The difference of this with canActivate is that the resolver will always render the component in the end.
+
+The resolver will implement **Resolve** which resolves into a server object with an id, name, and status. The method resolve will take in 2 arguments: AcitvatedRouteSnapshot and RouterStateSnapshot. We can make use of our ServersService getServer() method that returns a server object,
+
+``` typescript
+interface Server {
+  id: number;
+  name: string;
+  status: string;
+}
+
+@Injectable()
+export class ServerResolver implements Resolve<Server> {
+  constructor(private serversService: ServersService) {}
+
+  resolve(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<Server> | Promise<Server> | Server {
+    return this.serversService.getServer(+route.params['id'])
+  }
+}
+```
+
+After providing ServerResolver in our app module, we can now add it into the routing module. We assign a key value pair of server and ServerResolver, which returns a Server object that will be stored into the **myServer** property that will be available in the component.
+
+``` typescript
+{
+    path: "servers",
+    // canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
+    component: ServersComponent,
+    children: [
+      ...
+      {
+        path: ":id",
+        component: ServerComponent,
+        resolve: {
+          myServer: ServerResolver
+        }
+      },
+    ],
+  },
+```
+
+Basically, the method **resolve()** will be called by Angular when the router is loaded. With this, the code from ngOnInit() of our server-component is now redundant and we can remove it. The object returned by the resolver will go into a **data** property.
+
+``` typescript
+  ngOnInit() {
+    this.route.data.subscribe((data: Data) => {
+      this.server = data["myServer"];
+    });
+
+    // const id = +this.route.snapshot.params['id']
+    // this.server = this.serversService.getServer(id);
+    // this.route.params.subscribe(
+    //   (params: Params) => {
+    //     this.server = this.serversService.getServer(+params['id'])
+    //   }
+    // )
+  }
+```
+
+## Project: Routing
+
+##### Setting up Routes
+
+We set up the routes in a new file app-routing.module.ts. We need to use `pathMatch: 'full'` because if we set it to the default value of prefix, we will always be redirected from any path.
+
+``` typescript
+const appRoutes: Routes = [
+  {
+    path: '',
+    redirectTo: '/recipes',
+    pathMatch: 'full',
+  },
+  {
+    path: 'recipes',
+    component: RecipesComponent,
+  },
+  {
+    path: 'shoping-list',
+    component: ShoppingListComponent,
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(appRoutes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+```
+
+Afterwards, we also add it into the imports of the app module.
+
+``` typescript
+  imports: [BrowserModule, FormsModule, AppRoutingModule],
+```
+
+Finally we used `router-outlet` to render to the page
+
+``` html
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+```
+
+With routing, we no longer need to use click event listeners and emitters in our header component for navigation. Using the routerLinkActive directive wherein we define the class we want to attach to the element when the current route of the nested element (in this case, a) is active.
+
+``` html
+      <ul class="nav navbar-nav">
+        <li routerLinkActive="active">
+          <a routerLink="/recipes">Recipe</a>
+        </li>
+        <li routerLinkActive="active">
+          <a routerLink="/shopping-list">Shopping List</a>
+        </li>
+      </ul>
+```
+
+##### Child Routing
+
+We add a child route to our app-routing module. There is a child route with a dynamic segment for `id`
+
+``` typescript
+  {
+    path: 'recipes',
+    component: RecipesComponent,
+    children: [
+      {
+        path: '',
+        component: RecipeStartComponent,
+      },
+      {
+        path: ':id',
+        component: RecipeDetailComponent,
+      },
+    ],
+  },
+```
+
+To load a specific recipe by the id, we can configure route parameters. First we need to create a new method in our recipe service for getting a recipe by its id.
+
+``` typescript
+  getRecipeById(id:number) {
+    return this.recipes[id]
+  }
+```
+
+We then need to get access to ActivatedRoute by injecting it into our recipe-detail component. Since this component's value will possibly change after being rendered, we need to subscribe to it. We do so by subscribing to the **params** observable of Route. We make sure to cast params['id'] into a number.
+
+``` typescript
+  id: number;
+
+  constructor(
+    private recipeService: RecipeService,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    // const id = this.route.snapshot.params['id']
+    this.route.params.subscribe((params: Params) => {
+      this.id = +params['id'];
+      this.recipe = this.recipeService.getRecipeById(this.id);
+    });
+  }
+```
+
+We can setup the links by passing dynamic parameters to these links with routerLink. We need to be able to send the recipe id to the recipe-item component. We can do so by property binding from the recipe-list template
+
+``` html
+    <app-recipe-item
+      *ngFor="let recipeEl of recipes; let i = index"
+      [recipe]="recipeEl"
+      [id]="i"
+      (recipeSelected)="onRecipeSelected(recipeEl)"
+    ></app-recipe-item>
+```
+
+We make sure to include this bound property using Input() decorator to the recipe-item component
+
+``` typescript
+export class RecipeItemComponent implements OnInit {
+  @Input() id: number;
+  ...
+}
+```
+
+And finally apply it to the recipe-item template
+
+``` html
+<a 
+  [routerLink]="[id]"
+style="cursor: pointer" class="list-group-item clearfix">
+```
+
+To implement the page for editing recipes, we start by creating the recipe-edit component and adding it into the app-routing module. It is important to note that the hardcoded `new` path should be declared before the dynamic paths.
+```typescript
+{
+        path: 'new',
+        component: RecipeEditComponent,
+      },
+      {
+        path: ':id',
+        component: RecipeDetailComponent,
+      },
+      {
+        path: ':id/edit',
+        component: RecipeEditComponent,
+      },
+```
+
+We can retrieve the recipe id from the route parameters by first injecting ActivatedRoute into the recipe-edit component. At the same time, we also check if the route being passed has an id, if it does not, **params['id']** will return null, thereby editMode will be set to false which means we are in new recipe mode.
+```typescript
+export class RecipeEditComponent implements OnInit {
+  id: number;
+  editMode:boolean = false;
+
+  constructor(private route: ActivatedRoute) { }
+
+  ngOnInit(): void {
+    this.route.params.subscribe(
+      (params: Params) => {
+        this.id = +params['id']
+        this.editMode = params['id'] != null
+        console.log(this.editMode)
+      }
+    )
+  }
+
+}
+
+```
+
+To add the navigation to `/new`, we just add a click event listener and its corresponding method. We can inject Router and use its navigate() method, together with ActivatedRoute to get the current route which will be passed to **relativeTo**.
+
+```html
+<button class="btn btn-success" (click)="onNewRecipe()"  >New Recipe</button>
+```
+
+```typescript
+  constructor(
+    private recipeService: RecipeService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  onNewRecipe() {
+    this.router.navigate(['new'], { relativeTo: this.route });
   }
 ```
 

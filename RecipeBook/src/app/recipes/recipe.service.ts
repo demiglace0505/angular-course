@@ -13,17 +13,14 @@ export class RecipeService {
       [
         new Ingredient('Rice', 1),
         new Ingredient('Meat', 20),
-        new Ingredient('Curry Powder', 2)
+        new Ingredient('Curry Powder', 2),
       ]
     ),
     new Recipe(
       'Burger',
       'Juicy pure beef burger',
       'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=602&q=80',
-      [
-        new Ingredient('Bread', 2),
-        new Ingredient('Meat', 1)
-      ]
+      [new Ingredient('Bread', 2), new Ingredient('Meat', 1)]
     ),
   ];
   recipeSelected = new EventEmitter<Recipe>();
@@ -34,7 +31,11 @@ export class RecipeService {
     return this.recipes.slice();
   }
 
+  getRecipeById(id: number) {
+    return this.recipes[id];
+  }
+
   addIngredientsToShoppingList(ingredients: Ingredient[]) {
-    this.slService.addMultipleIngredients(ingredients)
+    this.slService.addMultipleIngredients(ingredients);
   }
 }
