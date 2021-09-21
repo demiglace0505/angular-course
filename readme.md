@@ -1336,7 +1336,7 @@ In our shopping-list service, we need to implement a new method for adding multi
 
 ## Routing
 
-> Reference activity:
+> Reference activity: [routing-start](https://github.com/demiglace0505/angular-course/tree/master/routing-start)
 
 We register our routing in the app.module file. The path property defines the path for the url, while the component property tells angular what should be loaded in that route. We also need to import **RouterModule** to our app.module. The RouterModule's special method forRoot() allows us to register routes.
 
