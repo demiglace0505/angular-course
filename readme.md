@@ -2101,7 +2101,8 @@ style="cursor: pointer" class="list-group-item clearfix">
 ```
 
 To implement the page for editing recipes, we start by creating the recipe-edit component and adding it into the app-routing module. It is important to note that the hardcoded `new` path should be declared before the dynamic paths.
-```typescript
+
+``` typescript
 {
         path: 'new',
         component: RecipeEditComponent,
@@ -2117,7 +2118,8 @@ To implement the page for editing recipes, we start by creating the recipe-edit 
 ```
 
 We can retrieve the recipe id from the route parameters by first injecting ActivatedRoute into the recipe-edit component. At the same time, we also check if the route being passed has an id, if it does not, **params['id']** will return null, thereby editMode will be set to false which means we are in new recipe mode.
-```typescript
+
+``` typescript
 export class RecipeEditComponent implements OnInit {
   id: number;
   editMode:boolean = false;
@@ -2135,16 +2137,15 @@ export class RecipeEditComponent implements OnInit {
   }
 
 }
-
 ```
 
 To add the navigation to `/new`, we just add a click event listener and its corresponding method. We can inject Router and use its navigate() method, together with ActivatedRoute to get the current route which will be passed to **relativeTo**.
 
-```html
+``` html
 <button class="btn btn-success" (click)="onNewRecipe()"  >New Recipe</button>
 ```
 
-```typescript
+``` typescript
   constructor(
     private recipeService: RecipeService,
     private router: Router,
@@ -2156,3 +2157,235 @@ To add the navigation to `/new`, we just add a click event listener and its corr
   }
 ```
 
+## Observables
+
+An observable are constructs to which we subscribe to be informed of changes in data. An observable can also be thought of as a data source. Between the observable and the observer, there is a stream wherein we can have multiple events emitted by the observable. Data sources may come from user input, HTTP requests or can be triggered in code. The observer has 3 hooks for handling data packages: normal data, errors or completion of the observable. Using code, we can define what should happen if we receive a new data package.
+
+``` typescript
+  ngOnInit() {
+    this.route.params.subscribe((params: Params) => {
+      this.id = +params.id;
+    });
+  }
+```
+
+In the example above, *params* is an observable, and it is a stream of route parameters, which gives us a new *route* parameter whenever we go to a new page (change in url). We then get the new params in the function we pass to subscribe, and get the id param from that.
+
+##### Building own Observable
+
+We create our own simple observable using the **interval()** method from rxjs library. This method will emit an event every interval that gets passed into it. We then subscribe to the observable and pass an anonymous function which gets the value that is emitted to the **count** argument.
+
+The subscribe method returns a **Subscription**, wherein we can store the subscription data. We call **unsubscribe** method on the ngOnDestroy() lifecycle to unsubscribe to the subscription.
+
+This will print out an incrementing value every second. And will stop once you navigate outisde the home.component.
+
+``` typescript
+export class HomeComponent implements OnInit, OnDestroy {
+  private firstObsSubscription: Subscription;
+
+  constructor() {}
+
+  ngOnInit() {
+    this.firstObsSubscription = interval(1000).subscribe((count) => {
+      console.log(count);
+    });
+  }
+
+  ngOnDestroy() {
+    this.firstObsSubscription.unsubscribe()
+  }
+}
+```
+
+We can build the above observable from the ground up too. We use the **Observable.create()** method which takes in an anonymous function and takes in an observer as an argument. The observer has the **next()** method which is used to emit a new value. We pass the *count* variable into next to let the observer know that the count variable has new data. We then subscribe to our custom observable using the **subscribe()** method as before.
+
+``` typescript
+export class HomeComponent implements OnInit, OnDestroy {
+  private firstObsSubscription: Subscription;
+
+  constructor() {}
+
+  ngOnInit() {
+    // this.firstObsSubscription = interval(1000).subscribe((count) => {
+    //   console.log(count);
+    // });
+    const customIntervalObservable = Observable.create((observer) => {
+      let count = 0;
+      setInterval(() => {
+        observer.next(count);
+        if (count == 2) {
+          observer.complete();
+        }
+
+        if (count > 3) {
+          observer.error(new Error("Count is greater than 3"));
+        }
+        count++;
+      }, 1000);
+    });
+
+    this.firstObsSubscription = customIntervalObservable.subscribe(
+      (data) => {
+        console.log(data);
+      },
+      (error) => {
+        console.log(error);
+        alert(error.message);
+      },
+      () => {
+        console.log("Complete!");
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.firstObsSubscription.unsubscribe();
+  }
+}
+```
+
+We can also handle errors by passing a second argument to the subscribe() method. This argument is a function that will get executed when an error occurs.
+
+To react to a completion, we can add a third argument to the subscribe() method. It is a function that takes no arguments since completing doesn't pass any arguments. If the observable completes, we don't need to call unsubscribe.
+
+##### Operators
+
+Sometimes we might not need the raw data that we get from a subscription. At times, we might transform the data. We can make use of Operators instead of transforming the data from within the function/subscription. We can do this by calling an observable's **pipe()** method, which every observable has. In the example below, we make use of the **map** operator.
+```typescript
+    const myOperator = customIntervalObservable.pipe(
+      map((data: number) => {
+        return "Round: " + (data + 1);
+      })
+    );
+
+    this.firstObsSubscription = myOperator.subscribe(
+      ...
+```
+
+##### Subject
+
+A subject is a special kind of observable. It is an object to which we can subscribe to, but we can actively call the method **next()** from outside.
+
+The example below shows a traditional way of conditionally rendering a component using click event emitters and ngIf. We create a new service user.service and add an event emitter that resolves to a boolean to it
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class UserService {
+  activatedEmitter = new EventEmitter<boolean>();
+}
+```
+
+We then inject this service to our user.component and listen to the click event onActivate()
+```typescript
+  constructor(
+    private route: ActivatedRoute,
+    private userService: UserService
+  ) {}
+
+  onActivate() {
+    this.userService.activatedEmitter.emit(true);
+  }
+```
+We then set up a listener in our app.component
+```typescript
+export class AppComponent implements OnInit {
+  userActivated = false;
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.userService.activatedEmitter.subscribe((didActivate) => {
+      this.userActivated = didActivate;
+    });
+  }
+}
+```
+Then we include a conditional ngIf in our template
+```html
+<p *ngIf="userActivated">Activated!</p>
+```
+
+We can recreate the above functionality using Subjects. We start by writing the service. The Subject in this case emits a boolean data.
+```typescript
+export class UserService {
+  activatedEmitter = new Subject<boolean>();
+}
+```
+
+Then, we can use the Subject's next method from the click listener
+```typescript
+  onActivate() {
+    this.userService.activatedEmitter.next(true);
+  }
+```
+
+We still need to call **subscribe()** on the subject, since it is still an observable
+
+```typescript
+export class AppComponent implements OnInit, OnDestroy {
+  userActivated = false;
+  private activatedSub: Subscription
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.activatedSub = this.userService.activatedEmitter.subscribe((didActivate) => {
+      this.userActivated = didActivate;
+    });
+  }
+
+  ngOnDestroy() {
+    this.activatedSub.unsubscribe()
+  }
+}
+
+```
+
+## Project: Observables
+
+We updated our shopping-list.service to make use of Subjects instead of Event Emitters
+```typescript
+export class ShoppingListService {
+  ingredientsChanged = new Subject<Ingredient[]>();
+  private ingredients: Ingredient[] = [
+    new Ingredient('apples', 5),
+    new Ingredient('oranges', 2),
+  ];
+
+  getIngredients() {
+    return this.ingredients.slice();
+  }
+  addIngredient(ingredient: Ingredient) {
+    this.ingredients.push(ingredient);
+    this.ingredientsChanged.next(this.ingredients.slice());
+  }
+
+  addMultipleIngredients(ingredients: Ingredient[]) {
+    this.ingredients.push(...ingredients);
+    this.ingredientsChanged.next(this.ingredients.slice());
+  }
+}
+```
+
+We then go to our shopping-list.component and store our subscription to the property igChangeSub and unsubscribe from it on destroy.
+
+```typescript
+export class ShoppingListComponent implements OnInit, OnDestroy {
+  ingredients: Ingredient[] = [];
+  private igChangeSub: Subscription
+
+  constructor(private slService: ShoppingListService) {}
+
+  ngOnInit(): void {
+    this.ingredients = this.slService.getIngredients()
+    this.igChangeSub = this.slService.ingredientsChanged.subscribe((ingredients: Ingredient[])=> {
+      this.ingredients = ingredients
+    })
+  }
+
+  ngOnDestroy() {
+    this.igChangeSub.unsubscribe()
+  }
+}
+
+```
