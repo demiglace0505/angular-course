@@ -12,6 +12,8 @@ Instructor: Max Schwarzmuller
 * [Components and Databinding](#components-and-databinding)
 * [Directives Deep Dive](#directives-deep-dive)
 * [Services and Dependency Injection](#services-and-dependency-injection)
+* [Routing](#routing)
+* [Observables](#observables)
 
 ## Angular Basics
 
@@ -528,7 +530,7 @@ If a new component is created in Angular, it is instantiated and added to the DO
   }
 ```
 
-### Project: Adding Navigation with Event Binding and ngIf
+## Project: Adding Navigation with Event Binding and ngIf
 
 We first add click event listeners in our navigation link components
 
@@ -577,7 +579,7 @@ We finally make use of **ngIf** directive to conditionally render which page to 
       <app-shopping-list *ngIf="loadedFeature !== 'recipe'" ></app-shopping-list>
 ```
 
-### Project: Passing Data with Property Binding
+## Project: Passing Data with Property Binding
 
 For this section, we built the individual recipe item components. We first create the templates for recipe-list and recipe-item respectively.
 
@@ -639,7 +641,7 @@ export class Recipe {
 }
 ```
 
-### Project: Event and Property Binding
+## Project: Event and Property Binding
 
 The goal of this section is to be able to display a single detailed recipe section when we click an item from our recipe list. The caveat with this approach is that we first pass from recipe-item to recipe-list and finally recipe-detail. A more elegant solution will be discussed in future chapters.
 
@@ -713,7 +715,7 @@ We can now render the data in our recipe-detail template
     <div class="col-xs-12">{{ recipe.description }}</div>
 ```
 
-### Project: Allowing Addition of Items to the Shopping List
+## Project: Allowing Addition of Items to the Shopping List
 
 We begin by adding local references to the input fields #nameInput and #amountInput and adding the click event listener to the Add button.
 
@@ -968,7 +970,7 @@ We can now use this directive in our template.
         </div>
 ```
 
-### Project: Implementing dropdown using directives
+## Project: Implementing dropdown using directives
 
 We created a dropdown.directive.ts file and in it, we make use of the **@HostSelector** decorator to listen for click events and fire the **toggleOpen** method, which sets Open to true or false. Using **@HostBinding**, we bind the class.open property of the element this directive is in to the property isOpen. This means that whenever isOpen changes, the host element is updated and the class **open** is either added or removed.
 
@@ -1124,7 +1126,7 @@ constructor(
     )
 ```
 
-### Project: Adding Services
+## Project: Adding Services
 
 ##### Recipe Service
 
@@ -2158,6 +2160,8 @@ To add the navigation to `/new`, we just add a click event listener and its corr
 ```
 
 ## Observables
+
+>  Reference activity: [obs-01-start](https://github.com/demiglace0505/angular-course/tree/master/obs-01-start)
 
 An observable are constructs to which we subscribe to be informed of changes in data. An observable can also be thought of as a data source. Between the observable and the observer, there is a stream wherein we can have multiple events emitted by the observable. Data sources may come from user input, HTTP requests or can be triggered in code. The observer has 3 hooks for handling data packages: normal data, errors or completion of the observable. Using code, we can define what should happen if we receive a new data package.
 
