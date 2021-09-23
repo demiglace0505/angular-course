@@ -2500,3 +2500,226 @@ We can also patch values into a group of inputs using the **patchValue()** metho
 ```
 
 ##### Reactive Forms
+
+In Reactive forms, the forms are created programmatically in TypeScript. We first initialize the form by calling a new instance of **FormGroup**. Inside, we add controls to the form using **FormControl**. The first argument for FormControl is the initial state, the second is a validator or array of validators to be applied to this form and the third is for async validators.
+
+``` typescript
+  ngOnInit() {
+    this.signupForm = new FormGroup({
+      username: new FormControl(null),
+      email: new FormControl(null),
+      gender: new FormControl("male"),
+    });
+  }
+
+  onSubmit() {
+    console.log(this.signupForm);
+  }
+```
+
+To synchronize our forms with the html inputs, we first need to add the directive **formGroup** via property binding to our form tag. We need to import ReactiveFormsModule in our app.module to do so. To connect the controls from our html template, we use the directive **formControlName** which we can use using either string or by property binding to the property we initialized earlier. Submitting the form is identical with template-driven forms, wherein we use the **ngSubmit** directive, but this time, we don't need to get the form using local reference anymore.
+
+``` html
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            formControlName="username"
+            type="text"
+            id="username"
+            class="form-control"
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">email</label>
+          <input
+            [formControlName]="'email'"
+            type="text"
+            id="email"
+            class="form-control"
+          />
+        </div>
+        <div class="radio" *ngFor="let gender of genders">
+          <label>
+            <input formControlName="gender" type="radio" [value]="gender" />{{
+              gender
+            }}
+          </label>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+      </form>
+```
+
+In the reactive approach, we can add validation using the second argument for FormControl.
+
+``` typescript
+    this.signupForm = new FormGroup({
+      username: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+      gender: new FormControl("male"),
+    });
+```
+
+To get access to our controls, we can use the FormGroup's **get** method. We pass into the get method the path to the element.
+
+``` html
+<span
+            class="help-block"
+            *ngIf="
+              !signupForm.get('username').valid &&
+              signupForm.get('username').touched
+            "
+            >Please enter a valid username</span
+          >
+```
+
+We can also group form controls using the **formGroupName** directive. With this, we need to update the structure of the form in the app.component typescript.
+
+``` html
+<div formGroupName="userData">
+  <div class="form-group">
+  ...
+```
+
+``` typescript
+    this.signupForm = new FormGroup({
+      userData: new FormGroup({
+        username: new FormControl(null, Validators.required),
+        email: new FormControl(null, [Validators.required, Validators.email]),
+      }),
+      gender: new FormControl("male"),
+    });
+  }
+```
+
+For array controls, we can make use of **FormArray**. We then use the FormGroup's get method to extract the hobbies FormArray, which we explicitly cast to FormArray. We can add a new control to the form using the array.push method.
+
+``` typescript
+  ngOnInit() {
+    this.signupForm = new FormGroup({
+      ...
+      hobbies: new FormArray([]),
+    });
+
+  onAddHobby() {
+    const control = new FormControl(null, Validators.required);
+    (<FormArray>this.signupForm.get("hobbies")).push(control);
+  }
+
+  getControls() {
+    return (<FormArray>this.signupForm.get("hobbies")).controls;
+  }
+```
+
+We then synchronize this to our html template. We can do so using **formArrayName** directive. We then have to make use of property binding to bind **formControlName** to the index.
+
+``` html
+        <div formArrayName="hobbies">
+          <h4>Your hobbies</h4>
+          <button class="btn btn-default" type="button" (click)="onAddHobby()">
+            Add Hobby
+          </button>
+          <div
+            class="form-group"
+            *ngFor="let hobbyControl of getControls(); let i = index"
+          >
+            <input type="text" class="form-control" [formControlName]="i" />
+          </div>
+        </div>
+```
+
+At this point, we can now find the properties for the hobbies array in:
+
+```
+value: {
+  ...
+  hobbies: [
+    ...
+  ]
+}
+```
+
+With reactive forms, we can easily build our own custom validators. A validator is a function that angular executes automatically when it checks the validity of the form control. The validator needs to take an argument of FormControl and returns an object with a string key and boolean value. The following example checks if the value being input is included in an array of forbidden values. In this case, the function returns the key *nameIsForbidden* with value true. Otherwise, the function should return null.
+
+``` typescript
+  // including the validator
+        username: new FormControl(null, [
+          Validators.required,
+          this.forbiddenNames.bind(this),
+        ]),
+  ...
+
+  forbiddenNames(control: FormControl): {[s: string]: boolean} {
+    if (this.forbiddenUsernames.indexOf(control.value) !== -1)  {
+      return {'nameIsForbidden': true}
+    }
+    return null
+  }
+```
+
+The *nameIsForbidden* is our error code. We can make use of the error message in our template.
+
+``` html
+              <span
+                *ngIf="
+                  signupForm.get('userData.username').errors['nameIsForbidden']
+                "
+                >This username is forbidden</span
+              >
+              <span
+                *ngIf="signupForm.get('userData.username').errors['required']"
+                >This field is required</span
+              >
+```
+
+Asynchronous validators can also be used. This time, it returns a promise which resolves to a key value pair of the error message and boolean. Asynchronous validators are used as the third argument to our FormControl.
+
+``` typescript
+  email: new FormControl(null, [Validators.required, Validators.email], this.forbiddenEmails.bind(this)),
+
+  //...
+
+  forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
+    const promise = new Promise<any>((resolve, reject) => {
+      setTimeout(() => {
+        if (control.value === 'test@test.com') {
+          resolve({'emailIsForbidden': true})
+        } else {
+          resolve(null)
+        }
+      },1500)
+    })
+    return promise
+  }
+```
+
+With reactive forms, we can also subscribe and react to changes in status and value. These are hooks (observables) that we can listen into for changes.
+
+``` typescript
+    this.signupForm.valueChanges.subscribe((value) => {
+      console.log(value);
+    });
+
+    this.signupForm.statusChanges.subscribe((status) => {
+      console.log(status);
+    });
+```
+
+Aside from listening for changes, we can also update the forms. We can use either **setValue** or **patchValue**
+
+``` typescript
+    this.signupForm.setValue({
+      userData: {
+        username: "Max",
+        email: "Max@max.com",
+      },
+      gender: "male",
+      hobbies: [],
+    });
+
+    this.signupForm.patchValue({
+      userData: {
+        username: "Anna",
+      },
+    });
+```
