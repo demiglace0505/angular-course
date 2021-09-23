@@ -14,6 +14,7 @@ Instructor: Max Schwarzmuller
 * [Services and Dependency Injection](#services-and-dependency-injection)
 * [Routing](#routing)
 * [Observables](#observables)
+* [Forms](#forms)
 
 ## Angular Basics
 
@@ -2161,7 +2162,7 @@ To add the navigation to `/new`, we just add a click event listener and its corr
 
 ## Observables
 
->  Reference activity: [obs-01-start](https://github.com/demiglace0505/angular-course/tree/master/obs-01-start)
+> Reference activity: [obs-01-start](https://github.com/demiglace0505/angular-course/tree/master/obs-01-start)
 
 An observable are constructs to which we subscribe to be informed of changes in data. An observable can also be thought of as a data source. Between the observable and the observer, there is a stream wherein we can have multiple events emitted by the observable. Data sources may come from user input, HTTP requests or can be triggered in code. The observer has 3 hooks for handling data packages: normal data, errors or completion of the observable. Using code, we can define what should happen if we receive a new data package.
 
@@ -2255,7 +2256,8 @@ To react to a completion, we can add a third argument to the subscribe() method.
 ##### Operators
 
 Sometimes we might not need the raw data that we get from a subscription. At times, we might transform the data. We can make use of Operators instead of transforming the data from within the function/subscription. We can do this by calling an observable's **pipe()** method, which every observable has. In the example below, we make use of the **map** operator.
-```typescript
+
+``` typescript
     const myOperator = customIntervalObservable.pipe(
       map((data: number) => {
         return "Round: " + (data + 1);
@@ -2272,7 +2274,7 @@ A subject is a special kind of observable. It is an object to which we can subsc
 
 The example below shows a traditional way of conditionally rendering a component using click event emitters and ngIf. We create a new service user.service and add an event emitter that resolves to a boolean to it
 
-```typescript
+``` typescript
 @Injectable({ providedIn: "root" })
 export class UserService {
   activatedEmitter = new EventEmitter<boolean>();
@@ -2280,7 +2282,8 @@ export class UserService {
 ```
 
 We then inject this service to our user.component and listen to the click event onActivate()
-```typescript
+
+``` typescript
   constructor(
     private route: ActivatedRoute,
     private userService: UserService
@@ -2290,8 +2293,10 @@ We then inject this service to our user.component and listen to the click event 
     this.userService.activatedEmitter.emit(true);
   }
 ```
+
 We then set up a listener in our app.component
-```typescript
+
+``` typescript
 export class AppComponent implements OnInit {
   userActivated = false;
 
@@ -2304,20 +2309,24 @@ export class AppComponent implements OnInit {
   }
 }
 ```
+
 Then we include a conditional ngIf in our template
-```html
+
+``` html
 <p *ngIf="userActivated">Activated!</p>
 ```
 
 We can recreate the above functionality using Subjects. We start by writing the service. The Subject in this case emits a boolean data.
-```typescript
+
+``` typescript
 export class UserService {
   activatedEmitter = new Subject<boolean>();
 }
 ```
 
 Then, we can use the Subject's next method from the click listener
-```typescript
+
+``` typescript
   onActivate() {
     this.userService.activatedEmitter.next(true);
   }
@@ -2325,7 +2334,7 @@ Then, we can use the Subject's next method from the click listener
 
 We still need to call **subscribe()** on the subject, since it is still an observable
 
-```typescript
+``` typescript
 export class AppComponent implements OnInit, OnDestroy {
   userActivated = false;
   private activatedSub: Subscription
@@ -2342,13 +2351,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.activatedSub.unsubscribe()
   }
 }
-
 ```
 
 ## Project: Observables
 
 We updated our shopping-list.service to make use of Subjects instead of Event Emitters
-```typescript
+
+``` typescript
 export class ShoppingListService {
   ingredientsChanged = new Subject<Ingredient[]>();
   private ingredients: Ingredient[] = [
@@ -2373,7 +2382,7 @@ export class ShoppingListService {
 
 We then go to our shopping-list.component and store our subscription to the property igChangeSub and unsubscribe from it on destroy.
 
-```typescript
+``` typescript
 export class ShoppingListComponent implements OnInit, OnDestroy {
   ingredients: Ingredient[] = [];
   private igChangeSub: Subscription
@@ -2391,5 +2400,103 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     this.igChangeSub.unsubscribe()
   }
 }
-
 ```
+
+## Forms
+
+There are two approaches to handling forms in Angular: Template-Driven and Reactive. In Template-Driven, Angular automatically infers which controls our form has from the DOM. In the Reactive approach, the form is created programatically wherein we define its structure in the code, setup the HTML and manually connect it. The Reactive approach offers greater control and flexibility.
+
+##### Template-Driven Forms
+
+> Reference activity:
+
+We need to make sure that **FormsModule** is incldued as an import in our app.module. With this, Angular automatically generates the javascript representation from our form tags. To add an input as a control, we need to add the directive **ngModel** as a property, and also a *name* property.
+
+To submit a form, we use the directive **ngSubmit**. This directive will be fired whenever the form is submitted. To access the form elements, we can use local references, in this case, *#f* and pass it into the onSubmit() method.
+
+``` html
+<form (ngSubmit)="onSubmit(f)" #f="ngForm">
+  ...
+  <button class="btn btn-primary" type="submit">Submit</button>
+</form
+```
+
+``` typescript
+  onSubmit(f: NgForm) {
+    console.log(f);
+  }
+```
+
+We can also access an element using the **@ViewChild** decorator
+
+``` typescript
+  @ViewChild("f") signupForm: NgForm;
+
+  onSubmit() {
+    console.log(this.signupForm);
+  }
+```
+
+For form validation, we can make use of property binding and bind it to the previous local reference to *f*. We could also select css classes, in this case we select input elements with the classes ng-invalid and ng-touched. These will have a red border. The ng-touched class will only activate once the input element has been touched.
+
+``` html
+<button class="btn btn-primary" type="submit" [disabled]="!f.valid">
+```
+
+``` css
+input.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+```
+
+An easy way to get access to the control created by Angular is to associate a local reference to the element and binding it to **ngModel** which exposes the information about this control.
+
+``` html
+<input
+  ...
+  #email="ngModel"
+/>
+<span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>
+```
+
+Using ngModel property binding, we can also select a default value for select tags. We can also use two-way binding to instantly display a value for instance as shown below in the *textarea* element
+
+``` html
+          <select
+            [ngModel]="defaultQuestion"
+            name="secret"
+            id="secret"
+            class="form-control"
+          >
+            <option value="pet">Your first Pet?</option>
+            <option value="teacher">Your first teacher?</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <textarea
+            class="form-control"
+            name="questionAnser"
+            rows="3"
+            [(ngModel)]="answer"
+          ></textarea>
+        </div>
+        <p>Your reply: {{ answer }}</p>
+```
+
+We can group form controls together by adding the directive **ngModelGroup** to a parent container. In this example, the output will have a *userData* property inside *value* that contains the email and username input. Aside from this, we can access the javascript representation of the control by using a local reference, in this case, #userData.
+
+``` html
+<div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">
+```
+
+We can also patch values into a group of inputs using the **patchValue()** method available to forms wrapped by ngForm.
+
+``` typescript
+    this.signupForm.form.patchValue({
+      userData: {
+        username: suggestedName,
+      },
+    });
+```
+
+##### Reactive Forms
