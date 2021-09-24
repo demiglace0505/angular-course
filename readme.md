@@ -2937,12 +2937,6 @@ We then need to synchronize our html template once again. We use **formArrayName
 
 We also added a button for adding additional forms for more ingredients. In the method onAddIngredient(), we add a new FormGroup containing two FormControls with blank default values by pushing into our recipeForm's _ingredients_ array. We need to cast this into `<FormArray>` before doing so.
 
-```html
-<button class="btn btn-success" (click)="onAddIngredient()" type="button">
-  Add Ingredient
-</button>
-```
-
 ```typescript
   onAddIngredient() {
     (<FormArray>this.recipeForm.get('ingredients')).push(
@@ -2953,6 +2947,16 @@ We also added a button for adding additional forms for more ingredients. In the 
     );
   }
 ```
+
+To delete ingredient forms, we need to create the onDeleteIngredient method. We use the FormGroup's **removeAt()** method to delete a form based on its index.
+
+```typescript
+  onDeleteIngredient(index:number) {
+    (<FormArray>this.recipeForm.get('ingredients')).removeAt(index)
+  }
+```
+
+##### Validating
 
 For validators, we used the built in required validators, and we also created our own validator via regex that only takes positive integers using **Validators.pattern()**
 
@@ -3047,18 +3051,18 @@ export class RecipeService {
 ```
 
 ```typescript
+  subscription: Subscription;
+
   ngOnInit(): void {
-    this.recipeService.recipesChanged.subscribe((recipes: Recipe[]) => {
-      this.recipes = recipes;
-    });
+    this.subscription = this.recipeService.recipesChanged.subscribe(
+      (recipes: Recipe[]) => {
+        this.recipes = recipes;
+      }
+    );
+    this.recipes = this.recipeService.getRecipes();
   }
-```
 
-For deleting recipes, we first create a service in our recipe.service
-
-```typescript
-  deleteRecipe(index: number) {
-    this.recipes.splice(index, 1)
-    this.recipesChanged.next(this.recipes.slice());
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 ```
