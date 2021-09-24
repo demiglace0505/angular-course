@@ -5,24 +5,24 @@ Instructor: Max Schwarzmuller
 ### Course Structure
 
 > This readme file is a documentation of my learnings, notes and takeaways from the course. It is structured such that each major topic in the course has its own section. Each section may consist of two parts: Lecture and Project.
-> 
+>
 > The lecture parts are outlined in the below list. Each lecture part is also accompanied by a sample application, which resides in its own subdirectory in this repo. The second part, project, is the application of the learnings from the lecture part to the Recipe Book project itself. This part can easily be identified by the **Project:** that precedes the header.
 
-* [Angular Basics](#angular-basics)
-* [Components and Databinding](#components-and-databinding)
-* [Directives Deep Dive](#directives-deep-dive)
-* [Services and Dependency Injection](#services-and-dependency-injection)
-* [Routing](#routing)
-* [Observables](#observables)
-* [Forms](#forms)
+- [Angular Basics](#angular-basics)
+- [Components and Databinding](#components-and-databinding)
+- [Directives Deep Dive](#directives-deep-dive)
+- [Services and Dependency Injection](#services-and-dependency-injection)
+- [Routing](#routing)
+- [Observables](#observables)
+- [Forms](#forms)
 
 ## Angular Basics
 
 ##### Creating a Component
 
-A component can be created by making use of the **@Component** decorator. This decorator marks a class as an Angular component and provides the configuration metadata to be used at runtime. A good rule of thumb for making components is that each component should have its own subdirectory, and the following naming convention: *subdirectory.component.ts*
+A component can be created by making use of the **@Component** decorator. This decorator marks a class as an Angular component and provides the configuration metadata to be used at runtime. A good rule of thumb for making components is that each component should have its own subdirectory, and the following naming convention: _subdirectory.component.ts_
 
-``` javascript
+```javascript
 import { Component } from "@angular/core";
 
 @Component({
@@ -32,7 +32,7 @@ import { Component } from "@angular/core";
 export class ServerComponent {}
 ```
 
-The selector option is the html tag by which we will be able to use our components. A good naming convention is *app-name*.
+The selector option is the html tag by which we will be able to use our components. A good naming convention is _app-name_.
 
 A module is a bundle of components, directives and functionalities that are related in such a way taht can be combined with other modules to create the application.
 
@@ -42,7 +42,7 @@ Components can also be created via the cli. This method automatically creates th
 ng generate component servers
 ```
 
-- - -
+---
 
 ## Components and Databinding
 
@@ -54,11 +54,11 @@ Databinding is essentially communication between the business logic and the temp
 
 We can simply interpolate a property into a string using double curly braces. We can also call a function like getServerStatus().
 
-``` html
+```html
 <p>Server with ID {{ serverId }} is {{ getServerStatus() }}</p>
 ```
 
-``` javascript
+```javascript
 export class ServerComponent {
   serverId: number = 10;
   serverStatus: string = "offline";
@@ -73,13 +73,13 @@ export class ServerComponent {
 
 To bind a property dynamically in Angular, we make use of square brackets. In the example below, the button is initially disabled, but becomes enabled after 5 seconds.
 
-``` html
+```html
 <button class="btn btn-primary" [disabled]="!allowNewServer">Add server</button>
 <app-server></app-server>
 <app-server></app-server>
 ```
 
-``` javascript
+```javascript
 export class ServersComponent implements OnInit {
   allowNewServer = false;
 
@@ -97,7 +97,7 @@ export class ServersComponent implements OnInit {
 
 Parenthesis signifies an event binding in Angular. To bind a click event, we make use of **(click)**.
 
-``` html
+```html
 <button
   class="btn btn-primary"
   [disabled]="!allowNewServer"
@@ -109,11 +109,11 @@ Parenthesis signifies an event binding in Angular. To bind a click event, we mak
 
 There's also the reserved keyword $event
 
-``` html
+```html
 <input type="text" class="form-control" (input)="onUpdateServerName($event)" />
 ```
 
-``` javascript
+```javascript
 export class ServersComponent implements OnInit {
   serverName = "";
 
@@ -125,7 +125,7 @@ export class ServersComponent implements OnInit {
 
 We can also make use of two-way binding by combining property and event binding. This can be done by using ngModel directive and combining square brackets and parenthesis. This will trigger on the input event and update the value of serverName automatically. The value of the input event will also be updated if we change serverName somewhere else.
 
-``` html
+```html
 <input type="text" class="form-control" [(ngModel)]="serverName" />
 ```
 
@@ -133,14 +133,14 @@ We can also make use of two-way binding by combining property and event binding.
 
 Directives are instructions in the DOM. These add additional behavior to elements in the Angular app. To use the **ngIf** directive, we need to use a star, because it is a so called structural directive, which means that it removes or adds elements.
 
-``` html
+```html
 <p *ngIf="serverCreated; else noServer">
   server was created, server name is {{ serverName }}
 </p>
 <ng-template #noServer><p>No server was created</p> </ng-template>
 ```
 
-``` javascript
+```javascript
   serverCreationStatus = 'No server was created';
   serverName = '';
   serverCreated = false;
@@ -158,7 +158,7 @@ Directives are instructions in the DOM. These add additional behavior to element
 
 The other type of directives are attribute directives. These does not add or remove elements, and only change the element that they were placed on. There are two primary examples: ngStyle and ngClass. For both of them, we need to use property binding.
 
-``` html
+```html
 <p
   [ngStyle]="{ backgroundColor: getColor() }"
   [ngClass]="{
@@ -169,13 +169,13 @@ The other type of directives are attribute directives. These does not add or rem
 </p>
 ```
 
-``` javascript
+```javascript
 export class ServerComponent {
   serverId: number = 10;
-  serverStatus: string = 'offline';
+  serverStatus: string = "offline";
 
   constructor() {
-    this.serverStatus = Math.random() > 0.5 ? 'online' : 'offline';
+    this.serverStatus = Math.random() > 0.5 ? "online" : "offline";
   }
 
   getServerStatus() {
@@ -183,18 +183,18 @@ export class ServerComponent {
   }
 
   getColor() {
-    return this.serverStatus === 'online' ? 'green' : 'red';
+    return this.serverStatus === "online" ? "green" : "red";
   }
 }
 ```
 
 For ngClass, the format of the object is class: statement. What happens is if the serverStatus property is set to 'online', the class online will be added to the p element.
 
-- - -
+---
 
 ## Project: Setting up the RecipeBook project
 
-Setting up the project can be done by using the ng new command. The *--no-stict* flag is important.
+Setting up the project can be done by using the ng new command. The _--no-stict_ flag is important.
 
 ```
 ng new --no-strict RecipeBook
@@ -206,9 +206,9 @@ I installed bootstrap afterwards.
 npm install --save bootstrap@3
 ```
 
-In the *angular.json* file, bootstrap has to be added in the styles array
+In the _angular.json_ file, bootstrap has to be added in the styles array
 
-``` javascript
+```javascript
  "styles": [
   "node_modules/bootstrap/dist/css/bootstrap.min.css",
   "src/styles.css"
@@ -239,9 +239,9 @@ shopping-list
 
 ##### Creating a Model for Recipes
 
-We created a model *recipe.model.ts* for our recipes. A model is simply a class that outlines what a recipe should look like.
+We created a model _recipe.model.ts_ for our recipes. A model is simply a class that outlines what a recipe should look like.
 
-``` javascript
+```javascript
 export class Recipe {
   public name: string;
   public description: string;
@@ -257,7 +257,7 @@ export class Recipe {
 
 There is also a shorthand method of writing the above in a constructor:
 
-``` javascript
+```javascript
 export class Ingredient {
   constructor(public name: string, public amount: number){
 
@@ -265,9 +265,9 @@ export class Ingredient {
 }
 ```
 
-We then declared this model to be used in the recipe-list component *recipe-list.component.ts*
+We then declared this model to be used in the recipe-list component _recipe-list.component.ts_
 
-``` javascript
+```javascript
 export class RecipeListComponent implements OnInit {
   recipes: Recipe[] = [];
 }
@@ -277,7 +277,7 @@ export class RecipeListComponent implements OnInit {
 
 The data from our recipes array can be accessed using the ngFor directive and string interpolation. We can also make use of property binding for the src attribute of the img element.
 
-``` html
+```html
 <a href="#" class="list-group-item clearfix" *ngFor="let recipe of recipes">
   <div class="pull-left">
     <h4 class="list-group-item-heading">{{ recipe.name }}</h4>
@@ -294,7 +294,7 @@ The data from our recipes array can be accessed using the ngFor directive and st
 </a>
 ```
 
-- - -
+---
 
 ## Communicating between components
 
@@ -302,16 +302,16 @@ The data from our recipes array can be accessed using the ngFor directive and st
 
 We can setup communication between our components using Property and Event Binding. Aside from binding to html elements, we can also use them on directives and components and their custom properties and events.
 
-In the below example, the element is bound to serverElement. Normally however, this property is not exposed outside the component itself. This property can be exposed by making use of the **@Input** decorator. This means that any parent component hosting the server-element component can now access the property through the alias *srvElement*.
+In the below example, the element is bound to serverElement. Normally however, this property is not exposed outside the component itself. This property can be exposed by making use of the **@Input** decorator. This means that any parent component hosting the server-element component can now access the property through the alias _srvElement_.
 
-``` html
-      <app-server-element
-        *ngFor="let serverElement of serverElements"
-        [srvElement]="serverElement"
-      ></app-server-element>
+```html
+<app-server-element
+  *ngFor="let serverElement of serverElements"
+  [srvElement]="serverElement"
+></app-server-element>
 ```
 
-``` javascript
+```javascript
 //server-element.component.ts
 
 export class ServerElementComponent implements OnInit {
@@ -324,22 +324,22 @@ export class ServerElementComponent implements OnInit {
 
 To pass data to a parent component, in this case from the cockpit component to the app component, we can bind to custom events. The event data is caught in the **$event** argument.
 
-``` html
-  <app-cockpit
-    (srvCreated)="onServerAdded($event)"
-    (bpCreated)="onBlueprintAdded($event)"
-  ></app-cockpit>
+```html
+<app-cockpit
+  (srvCreated)="onServerAdded($event)"
+  (bpCreated)="onBlueprintAdded($event)"
+></app-cockpit>
 ```
 
-We also need to create the corresponding methods *onServerAdded* and *onBlueprintAdded* that are fired upon creation of a server and blueprint.
+We also need to create the corresponding methods _onServerAdded_ and _onBlueprintAdded_ that are fired upon creation of a server and blueprint.
 
-``` javascript
+```javascript
 export class AppComponent {
   serverElements = [
     { type: "server", name: "Testserver", content: "just a test" },
   ];
 
-  onServerAdded(serverData: { serverName: string; serverContent: string }) {
+  onServerAdded(serverData: { serverName: string, serverContent: string }) {
     this.serverElements.push({
       type: "server",
       name: serverData.serverName,
@@ -348,8 +348,8 @@ export class AppComponent {
   }
 
   onBlueprintAdded(blueprintData: {
-    serverName: string;
-    serverContent: string;
+    serverName: string,
+    serverContent: string,
   }) {
     this.serverElements.push({
       type: "blueprint",
@@ -362,7 +362,7 @@ export class AppComponent {
 
 To emit events, 2 new properties has to be added to the cockpit component. These are instantiated from the **EventEmitter** class. We also need the **@Output** decorator to make the methods listenable from outside.
 
-``` javascript
+```javascript
 export class CockpitComponent implements OnInit {
   @Output("srvCreated") serverCreated = new EventEmitter<{
     serverName: string;
@@ -398,24 +398,24 @@ export class CockpitComponent implements OnInit {
 
 A local reference can be placed on any HTML element. A reference will hold the reference to the specific element. This reference can then be passed around in the html template, not in the typescript component. The following example shows the difference between using two-way binding and using reference.
 
-``` html
-    <!-- using reference -->
-    <label>Server Name</label>
-    <input type="text" class="form-control" #serverNameInput />
+```html
+<!-- using reference -->
+<label>Server Name</label>
+<input type="text" class="form-control" #serverNameInput />
 
-    <!-- using two way data binding -->
-    <label>Server Content</label>
-    <input type="text" class="form-control" [(ngModel)]="newServerContent" />
-    <br />
-    <button class="btn btn-primary" (click)="onAddServer(serverNameInput)">
-      Add Server
-    </button>
-    <button class="btn btn-primary" (click)="onAddBlueprint(serverNameInput)">
-      Add Server Blueprint
-    </button>
+<!-- using two way data binding -->
+<label>Server Content</label>
+<input type="text" class="form-control" [(ngModel)]="newServerContent" />
+<br />
+<button class="btn btn-primary" (click)="onAddServer(serverNameInput)">
+  Add Server
+</button>
+<button class="btn btn-primary" (click)="onAddBlueprint(serverNameInput)">
+  Add Server Blueprint
+</button>
 ```
 
-``` typescript
+```typescript
   onAddServer(nameInput: HTMLInputElement) {
     console.log(nameInput.value);
     this.serverCreated.emit({
@@ -436,11 +436,11 @@ A local reference can be placed on any HTML element. A reference will hold the r
 
 Another way to access a local reference or any element directly from within our typescript code is by using **@ViewChild** Decorator. We just need to pass the local reference as a string argument to the ViewChild decorator and then the element could then be accessed using the **nativeElement** property. In the example below, the local reference #serverContentInput is accessed.
 
-``` html
+```html
 <input type="text" class="form-control" #serverContentInput />
 ```
 
-``` typescript
+```typescript
   @ViewChild("serverContentInput", { static: true }) serverContentInput: ElementRef;
 
   onAddServer(nameInput: HTMLInputElement) {
@@ -463,7 +463,8 @@ Another way to access a local reference or any element directly from within our 
 
 We can use the ng-content directive in a place where we want to render content. We then have to nest the content we want to be rendered inside the component's tag, in this case, in between
 <br>
-``` html
+
+```html
 <div class="panel panel-default">
   <div class="panel-heading">{{ element.name }}</div>
   <div class="panel-body">
@@ -472,18 +473,18 @@ We can use the ng-content directive in a place where we want to render content. 
 </div>
 ```
 
-``` html
+```html
 <app-server-element
   *ngFor="let serverElement of serverElements"
   [srvElement]="serverElement"
 >
   <p>
-    <strong *ngIf="serverElement.type === 'server'" style="color: red">{{
-      serverElement.content
-    }}</strong>
-    <em *ngIf="serverElement.type === 'blueprint'">{{
-      serverElement.content
-    }}</em>
+    <strong *ngIf="serverElement.type === 'server'" style="color: red"
+      >{{ serverElement.content }}</strong
+    >
+    <em *ngIf="serverElement.type === 'blueprint'"
+      >{{ serverElement.content }}</em
+    >
   </p>
 </app-server-element>
 ```
@@ -492,26 +493,24 @@ We can use the ng-content directive in a place where we want to render content. 
 
 If a new component is created in Angular, it is instantiated and added to the DOM.
 
-| Hook | Description |
-| ---- | ----------- |
-| ngOnChanges | Called after a bound input property chagnes |
-| ngOnInit | Called once a component is initialized. Runs after the constructor |
-| ngDoCheck | Called during every change detection run |
-| ngAfterContentInit | Called after the content projected by ng-content has been projected into view |
-| ngAfterContentChecked | Called every time the projected content has been checked |
-| ngAfterViewInit | Called after the component and child views has been initialized |
-| ngAfterViewChecked | Called every time the view and child views have been checked |
-| ngOnDestroy | Called once the component is about to be destroyed |
+| Hook                  | Description                                                                   |
+| --------------------- | ----------------------------------------------------------------------------- |
+| ngOnChanges           | Called after a bound input property chagnes                                   |
+| ngOnInit              | Called once a component is initialized. Runs after the constructor            |
+| ngDoCheck             | Called during every change detection run                                      |
+| ngAfterContentInit    | Called after the content projected by ng-content has been projected into view |
+| ngAfterContentChecked | Called every time the projected content has been checked                      |
+| ngAfterViewInit       | Called after the component and child views has been initialized               |
+| ngAfterViewChecked    | Called every time the view and child views have been checked                  |
+| ngOnDestroy           | Called once the component is about to be destroyed                            |
 
 ##### Accessing ng-content with @ContentChild
 
-``` html
-<p #contentParagraph>
-  ...
-</p>
+```html
+<p #contentParagraph>...</p>
 ```
 
-``` typescript
+```typescript
   @ContentChild('contentParagraph', {static: true}) paragraph: ElementRef;
 
     ngOnInit(): void {
@@ -535,7 +534,7 @@ If a new component is created in Angular, it is instantiated and added to the DO
 
 We first add click event listeners in our navigation link components
 
-``` html
+```html
 <li>
   <a href="#" (click)="onSelect('recipe')">Recipe</a>
 </li>
@@ -546,7 +545,7 @@ We first add click event listeners in our navigation link components
 
 We then create the event emitter in our component. We make use of the @Output decorator in order to make this event listenable from outside the header component, in this case, the parent or the app component.
 
-``` typescript
+```typescript
 export class HeaderComponent {
   @Output() featureSelected = new EventEmitter<string>();
 
@@ -555,17 +554,17 @@ export class HeaderComponent {
   }
 ```
 
-In the parent component, the app component, we will add a listener event that listens for the *featureSelected* event and then executes *onNavigate()*, wherein this time we pass the event data of featureSelected through the reserved $event keyword.
+In the parent component, the app component, we will add a listener event that listens for the _featureSelected_ event and then executes _onNavigate()_, wherein this time we pass the event data of featureSelected through the reserved $event keyword.
 
-``` html
+```html
 <app-header (featureSelected)="onNavigate($event)"></app-header>
 ```
 
-We then proceed to write the function in the app component. The *loadedFeature* property is set to the feature that we receive from the event's argument.
+We then proceed to write the function in the app component. The _loadedFeature_ property is set to the feature that we receive from the event's argument.
 
-``` typescript
+```typescript
 export class AppComponent {
-  loadedFeature: string = 'recipe';
+  loadedFeature: string = "recipe";
 
   onNavigate(feature: string) {
     this.loadedFeature = feature;
@@ -575,21 +574,21 @@ export class AppComponent {
 
 We finally make use of **ngIf** directive to conditionally render which page to load depending on the feature selected
 
-``` html
-<app-recipes *ngIf="loadedFeature === 'recipe'" ></app-recipes>
-<app-shopping-list *ngIf="loadedFeature !== 'recipe'" ></app-shopping-list>
+```html
+<app-recipes *ngIf="loadedFeature === 'recipe'"></app-recipes>
+<app-shopping-list *ngIf="loadedFeature !== 'recipe'"></app-shopping-list>
 ```
 
 ## Project: Passing Data with Property Binding
 
 For this section, we built the individual recipe item components. We first create the templates for recipe-list and recipe-item respectively.
 
-``` html
+```html
 <!-- recipe-list -->
 <app-recipe-item *ngFor="let recipe of recipes"></app-recipe-item>
 ```
 
-``` html
+```html
 <!-- recipe-item -->
 <a href="#" class="list-group-item clearfix">
   <div class="pull-left">
@@ -609,7 +608,7 @@ For this section, we built the individual recipe item components. We first creat
 
 We add a recipe property to recipe-item, which we will be getting from outside the recipe-item component using the @Input decorator.
 
-``` typescript
+```typescript
 export class RecipeItemComponent implements OnInit {
   @Input() recipe: Recipe;
 
@@ -621,14 +620,17 @@ export class RecipeItemComponent implements OnInit {
 
 This allows us to bind the recipe property from outside, which we will be binding from the recipe-list component. At this point, it would be a great time to rename the individual item from the **ngFor** directive. recipeEl is the element which we will pass to the bindable recipe property from the recipe-item component. We can now update the recipe template as such:
 
-``` html
+```html
 <!-- recipe-list -->
-<app-recipe-item *ngFor="let recipeEl of recipes" [recipe]="recipeEl"></app-recipe-item>
+<app-recipe-item
+  *ngFor="let recipeEl of recipes"
+  [recipe]="recipeEl"
+></app-recipe-item>
 ```
 
 The recipe property is of type model
 
-``` typescript
+```typescript
 export class Recipe {
   public name: string;
   public description: string;
@@ -648,7 +650,7 @@ The goal of this section is to be able to display a single detailed recipe secti
 
 We first set up the click listener of the single recipe-item component. Again the @Output director is necessary to be able to listen to this event from outside the recipe-item component.
 
-``` typescript
+```typescript
 export class RecipeItemComponent implements OnInit {
   @Input() recipe: Recipe;
   @Output() recipeSelected = new EventEmitter<void>();
@@ -662,19 +664,19 @@ export class RecipeItemComponent implements OnInit {
 }
 ```
 
-We then update the template for our recipe-list component to listen to this event. We pass on the current recipe object, which is the *recipeEl*
+We then update the template for our recipe-list component to listen to this event. We pass on the current recipe object, which is the _recipeEl_
 
-``` html
+```html
 <app-recipe-item
-*ngFor="let recipeEl of recipes"
-[recipe]="recipeEl"
-(recipeSelected)="onRecipeSelected(recipeEl)"
+  *ngFor="let recipeEl of recipes"
+  [recipe]="recipeEl"
+  (recipeSelected)="onRecipeSelected(recipeEl)"
 ></app-recipe-item>
 ```
 
 We then Emit another event. We pass the recipeEl received from the above to the event emitter. This time around, the parent **recipes** component will be the one listening for this event.
 
-``` typescript
+```typescript
 export class RecipeListComponent implements OnInit {
   @Output() recipeWasSelected = new EventEmitter<Recipe>();
   ...
@@ -684,32 +686,28 @@ export class RecipeListComponent implements OnInit {
 }
 ```
 
-We can set up recipes template. We set the component's *selectedRecipe* property into the recipe we received from the recipeWasSelected event.
+We can set up recipes template. We set the component's _selectedRecipe_ property into the recipe we received from the recipeWasSelected event.
 
-We use the ngIf directive together with ng-template to conditionally render *infoText* if selectedRecipe is null, or in other words, no recipe was selected yet. The *recipe* property of the recipe-detail component is bound to selectedRecipe.
+We use the ngIf directive together with ng-template to conditionally render _infoText_ if selectedRecipe is null, or in other words, no recipe was selected yet. The _recipe_ property of the recipe-detail component is bound to selectedRecipe.
 
-``` html
+```html
 <app-recipe-list
-(recipeWasSelected)="selectedRecipe = $event"
+  (recipeWasSelected)="selectedRecipe = $event"
 ></app-recipe-list>
 
 <app-recipe-detail
-*ngIf="selectedRecipe; else infoText"
-[recipe]="selectedRecipe"
+  *ngIf="selectedRecipe; else infoText"
+  [recipe]="selectedRecipe"
 ></app-recipe-detail>
 <ng-template #infoText>
-<p>Please select a Recipe</p>
+  <p>Please select a Recipe</p>
 </ng-template>
 ```
 
 We can now render the data in our recipe-detail template
 
-``` html
-<img
-[src]="recipe.imagePath"
-alt="{{ recipe.name }}"
-class="img-responsive"
-/>
+```html
+<img [src]="recipe.imagePath" alt="{{ recipe.name }}" class="img-responsive" />
 ...
 <h1>{{ recipe.name }}</h1>
 ...
@@ -720,20 +718,20 @@ class="img-responsive"
 
 We begin by adding local references to the input fields #nameInput and #amountInput and adding the click event listener to the Add button.
 
-``` html
+```html
 <input type="text" id="name" class="form-control" #nameInput />
 <input type="number" class="form-control" id="amount" #amountInput />
-<button class="btn btn-success" type="submit" (click)="onAddItem()" >Add</button>
+<button class="btn btn-success" type="submit" (click)="onAddItem()">Add</button>
 ```
 
 We make use of the ViewChild() decorator to access these local references from within the typescript code. We now create an event emitter wherein we pass the data to the parent component that manages the array of ingredients, which is the shopping-list component. We pass the Ingredient model for the type definition of the event emitter.
 
 The values received from ViewChild can be accessed using **nativeElement**, which we then pass to our event emitter.
 
-``` typescript
+```typescript
 export class ShoppingEditComponent implements OnInit {
-  @ViewChild('nameInput', { static: false }) nameInputRef: ElementRef;
-  @ViewChild('amountInput', { static: false }) amountInputRef: ElementRef;
+  @ViewChild("nameInput", { static: false }) nameInputRef: ElementRef;
+  @ViewChild("amountInput", { static: false }) amountInputRef: ElementRef;
   @Output() ingredientAdded = new EventEmitter<Ingredient>();
 
   constructor() {}
@@ -751,21 +749,21 @@ export class ShoppingEditComponent implements OnInit {
 
 We can now listen to the ingredientAdded event from our shopping-list template
 
-``` html
-    <app-shopping-edit
-      (ingredientAdded)="onIngredientAdded($event)"
-    ></app-shopping-edit>
+```html
+<app-shopping-edit
+  (ingredientAdded)="onIngredientAdded($event)"
+></app-shopping-edit>
 ```
 
 And then we create the function onIngredientAdded in our shopping-list component, which receives the event data from the ingredientAdded event.
 
-``` typescript
+```typescript
   onIngredientAdded(ingredient: Ingredient) {
     this.ingredients.push(ingredient);
   }
 ```
 
-- - -
+---
 
 ## Directives Deep Dive
 
@@ -777,7 +775,7 @@ Attribute directives on the other hand, does not change the HTML layout. These a
 
 ##### Creating our own directive
 
-We could also create our own directives. We create a subdirectory on our project called *basic-highlight* and inside of it we create a file *basic-highlight.directive.ts*. We use the **@Directive** decorator, and we need to pass an object as a parameter. The selector attribute allows us to attach them to an element. We wrap the value in square brackets so that we don't have to do so when we use our directive in our component.
+We could also create our own directives. We create a subdirectory on our project called _basic-highlight_ and inside of it we create a file _basic-highlight.directive.ts_. We use the **@Directive** decorator, and we need to pass an object as a parameter. The selector attribute allows us to attach them to an element. We wrap the value in square brackets so that we don't have to do so when we use our directive in our component.
 
 A quicker way of creating directives is by use of the angular cli
 
@@ -787,7 +785,7 @@ ng generate directive better-highlight
 
 We can access the element into this directive by injection. To do this, we need to pass an ElementRef argument to the constructor. This is a reference to the element wherein the directive is placed on. To be able to use this data anywhere in our class, we can use **private** which will make it a property of ElementRef.
 
-``` typescript
+```typescript
 @Directive({
   selector: "[appBasicHighlight]",
 })
@@ -802,7 +800,7 @@ export class BasicHighlightDirective implements OnInit {
 
 To use the directive, we have to first declare our directive in our app.module.ts file.
 
-``` typescript
+```typescript
 @NgModule({
   declarations: [
     AppComponent,
@@ -813,7 +811,7 @@ To use the directive, we have to first declare our directive in our app.module.t
 
 We can then use the directive in our template
 
-``` html
+```html
 <p appBasicHighlight>Style me with basic directive!</p>
 ```
 
@@ -821,7 +819,7 @@ We can then use the directive in our template
 
 Accessing elements directly like the previous example is not a good practice. A better way of building directives is by the use of the Renderer. We inject the helper Renderer2 in our constructor in addition to ElementRef. We now then use the setStyle method of the renderer, which takes four arguments: first is the element, second is the property, third is the value of the property and fourth an optional flags
 
-``` typescript
+```typescript
 @Directive({
   selector: "[appBetterHighlight]",
 })
@@ -840,7 +838,7 @@ export class BetterHighlightDirective implements OnInit {
 
 We can now use it in our template
 
-``` html
+```html
 <p appBetterHighlight>Style me with better directive!</p>
 ```
 
@@ -848,7 +846,7 @@ We can now use it in our template
 
 To react to events in the element wherein the directive sits on, we can use the **@HostListener** decorator.
 
-``` typescript
+```typescript
   @HostListener("mouseenter") mouseover(eventData: Event) {
     this.renderer.setStyle(
       this.elementRef.nativeElement,
@@ -866,9 +864,9 @@ To react to events in the element wherein the directive sits on, we can use the 
   }
 ```
 
-An even easier way, without using the renderer, is through the use of **@HostBinding** decorator. We bind this to a property that will be set to important, in this case *backgroundColor*. We pass a property to the decorator to which property of the hosting element we want to bind, which in this case is *style.backgroundColor*.
+An even easier way, without using the renderer, is through the use of **@HostBinding** decorator. We bind this to a property that will be set to important, in this case _backgroundColor_. We pass a property to the decorator to which property of the hosting element we want to bind, which in this case is _style.backgroundColor_.
 
-``` typescript
+```typescript
   @HostBinding("style.backgroundColor") backgroundColor: string = "transparent";
 
   @HostListener("mouseenter") mouseover(eventData: Event) {
@@ -881,7 +879,7 @@ An even easier way, without using the renderer, is through the use of **@HostBin
 
 We can make of custom property binding to pass on parameters
 
-``` typescript
+```typescript
 export class BetterHighlightDirective implements OnInit {
   @Input() defaultColor: string = "transparent";
   @Input() highlightColor: string = "blue";
@@ -904,19 +902,15 @@ export class BetterHighlightDirective implements OnInit {
 
 Specifying our colors in the template:
 
-``` html
-<p
-appBetterHighlight
-[defaultColor]="'yellow'"
-[highlightColor]="'orange'"
->
-Style me with better directive!
+```html
+<p appBetterHighlight [defaultColor]="'yellow'" [highlightColor]="'orange'">
+  Style me with better directive!
 </p>
 ```
 
 Note that if we set an alias that has the same name as our directive, we need to enclose the directive with a square bracket. In the example below, appBetterHighlight.
 
-``` typescript
+```typescript
 export class BetterHighlightDirective implements OnInit {
   @Input() defaultColor: string = "transparent";
   @Input('appBetterHighlight') highlightColor: string = "blue";
@@ -924,12 +918,9 @@ export class BetterHighlightDirective implements OnInit {
 }
 ```
 
-``` html
-<p
-[appBetterHighlight]="'orange'"
-[defaultColor]="'yellow'"
->
-Style me with better directive!
+```html
+<p [appBetterHighlight]="'orange'" [defaultColor]="'yellow'">
+  Style me with better directive!
 </p>
 ```
 
@@ -937,7 +928,7 @@ Style me with better directive!
 
 We created our own structural directive unless.directive.ts, which is the opposite of ngIf. We bind to a property called 'appUnless' which should be the same name as the selector, but whenever this condition changes, a method should be executed that's why it is declared as a **setter**. It receives a boolean condition as its parameter. To access the template and the place in the document where we want to render, we can inject **TemplateRef** and **ViewContainerRef** in the constructor.
 
-``` typescript
+```typescript
 export class UnlessDirective {
   @Input() set appUnless(condition: boolean) {
     if (!condition) {
@@ -956,7 +947,7 @@ export class UnlessDirective {
 
 We can now use this directive in our template.
 
-``` html
+```html
 <div *appUnless="onlyOdd">
   <li
     class="list-group-item"
@@ -977,24 +968,24 @@ We created a dropdown.directive.ts file and in it, we make use of the **@HostSel
 
 The directive will not be attached initially, but whenever isOpen switches to true, it will be attached and when it switches to false, it will be removed.
 
-``` typescript
+```typescript
 @Directive({
-  selector: '[appDropdown]',
+  selector: "[appDropdown]",
 })
 export class DropdownDirective {
-  @HostBinding('class.open') isOpen = false;
+  @HostBinding("class.open") isOpen = false;
 
-  @HostListener('click') toggleOpen() {
+  @HostListener("click") toggleOpen() {
     this.isOpen = !this.isOpen;
   }
 }
 ```
 
-``` html
-<li class="dropdown" appDropdown>
+```html
+<li class="dropdown" appDropdown></li>
 ```
 
-- - -
+---
 
 ## Services and Dependency Injection
 
@@ -1006,7 +997,7 @@ A service is a broad category encompassing any value, function or feature that a
 
 A service is created with a name.service.ts naming convention. It is important to note that we don't need to import decorators in order to define a service.
 
-``` typescript
+```typescript
 export class LoggingService {
   logStatusChange(status: string) {
     console.log("A server status changed, new status: " + status);
@@ -1016,7 +1007,7 @@ export class LoggingService {
 
 To use a service, we need to inject it into components using Angular's dependency injector. We pass the LoggingService class into our constructor and add it in the component's **providers** array.
 
-``` typescript
+```typescript
 @Component({
   ...
   providers: [LoggingService]
@@ -1041,7 +1032,7 @@ export class NewAccountComponent {
 
 Another typical use case for services is for storing and managing data.
 
-``` typescript
+```typescript
 export class AccountsService {
   accounts = [
     {
@@ -1063,7 +1054,7 @@ export class AccountsService {
 
 And our app component simply becomes:
 
-``` typescript
+```typescript
 export class AppComponent implements OnInit {
   accounts: { name: string; status: string }[] = [];
 
@@ -1077,7 +1068,7 @@ export class AppComponent implements OnInit {
 
 It is important to note that injection of services follows the Hierarchical Injection, which means that the children of a component will also get injected. In the case of this app, we don't want to provide **AccountService** to the children (new-account and account), because that would give us a different instance of AccountService. We should only provide AccountService into the parent app component. We shouldn't remove it in the constructor though.
 
-``` typescript
+```typescript
   //app.component.ts
   providers: [AccountsService],
   //new-account.component.ts
@@ -1090,7 +1081,7 @@ It is important to note that injection of services follows the Hierarchical Inje
 
 To inject a service into a service, we need to provide a service to the highest in the hierarchy, the app module. If we want to inject a service into a service, we need to add the **@Injectable** decorator to the receiving service.
 
-``` typescript
+```typescript
 @Injectable()
 export class AccountsService {
   ...
@@ -1102,13 +1093,13 @@ export class AccountsService {
 
 We can make components communicate with each other using services. We have a triggering component and a listening component. We first add an event emitter in our service.
 
-``` typescript
+```typescript
 statusUpdated = new EventEmitter<string>();
 ```
 
 Then access it and emit an event via AccountsService in our account component
 
-``` typescript
+```typescript
   onSetTo(status: string) {
     ...
     this.accountsService.statusUpdated.emit(status)
@@ -1117,7 +1108,7 @@ Then access it and emit an event via AccountsService in our account component
 
 And finally subscribe to it from the new-account component
 
-``` typescript
+```typescript
 constructor(
     private loggingService: LoggingService,
     private accountsService: AccountsService
@@ -1131,9 +1122,9 @@ constructor(
 
 ##### Recipe Service
 
-We first set up the array of recipes in the *recipe.service.ts* file. Since objects and arrays in JavaScript are reference types, we should call **slice()** with no arguments which will return a new array which is an exact copy of the *recipes* array.
+We first set up the array of recipes in the _recipe.service.ts_ file. Since objects and arrays in JavaScript are reference types, we should call **slice()** with no arguments which will return a new array which is an exact copy of the _recipes_ array.
 
-``` typescript
+```typescript
 export class RecipeService {
   private recipes: Recipe[] = [
     new Recipe(
@@ -1150,15 +1141,15 @@ export class RecipeService {
 }
 ```
 
-We then add this as a provider to *recipes.component*
+We then add this as a provider to _recipes.component_
 
-``` typescript
-  providers: [RecipeService]
+```typescript
+providers: [RecipeService];
 ```
 
-And then provide it to *recipe-list* and initialize recipes with getRecipes()
+And then provide it to _recipe-list_ and initialize recipes with getRecipes()
 
-``` typescript
+```typescript
   recipes: Recipe[]
 
   constructor(private recipeService: RecipeService) {}
@@ -1172,18 +1163,19 @@ And then provide it to *recipe-list* and initialize recipes with getRecipes()
 
 Currently, the app makes use of a chain of Inputs and Outputs to communicate between components. We can do better using services. Inside our recipe service, we can add an event emitter that holds a Recipe object.
 
-``` typescript
+```typescript
 recipeSelected = new EventEmitter<Recipe>();
 ```
 
 We then inject the recipe service into recipe-item component and add use the recipeSelected event emitter. This will allow us to click a recipe.
 
-``` html
+```html
 <a href="#" class="list-group-item clearfix" (click)="onSelected()">
-    <!-- recipe list -->
+  <!-- recipe list --></a
+>
 ```
 
-``` typescript
+```typescript
   constructor(private recipeService: RecipeService) {}
 
   onSelected() {
@@ -1193,7 +1185,7 @@ We then inject the recipe service into recipe-item component and add use the rec
 
 To display the details of the clicked recipe, we create a listener in our recipes component which is subscribed for changes in the selected recipe, wherein we pass a recipe object of type Recipe, which we will be receiving from the event emitter above. This allows a new recipe to be displayed when the selected recipe is changed, in the case of this app, when a different recipe is clicked.
 
-``` typescript
+```typescript
   constructor(private recipeService: RecipeService) {}
 
   ngOnInit(): void {
@@ -1207,47 +1199,47 @@ To display the details of the clicked recipe, we create a listener in our recipe
 
 We provide the ShoppingListService to app.module since we would be accessing the shopping list from the recipes component later on. We set up the shopping-list service as follows. Important to note here is the **ingredientsChanged** event emitter which receives a copy of the ingredients array in the **addIngredient** method. This is necessary since we need to inform our component for changes when a new ingredient is added.
 
-``` typescript
+```typescript
 export class ShoppingListService {
   private ingredients: Ingredient[] = [
-    new Ingredient('apples', 5),
-    new Ingredient('oranges', 2),
-  ]
-  ingredientsChanged = new EventEmitter<Ingredient[]>()
+    new Ingredient("apples", 5),
+    new Ingredient("oranges", 2),
+  ];
+  ingredientsChanged = new EventEmitter<Ingredient[]>();
 
   getIngredients() {
-    return this.ingredients.slice()
+    return this.ingredients.slice();
   }
   addIngredient(ingredient: Ingredient) {
-    this.ingredients.push(ingredient)
-    this.ingredientsChanged.emit(this.ingredients.slice())
+    this.ingredients.push(ingredient);
+    this.ingredientsChanged.emit(this.ingredients.slice());
   }
 }
 ```
 
 We then need to subscribe to the ingredientsChanged event for changes in the ingredients array which is found in the shopping-list component.
 
-``` typescript
+```typescript
 export class ShoppingListComponent implements OnInit {
   ingredients: Ingredient[] = [];
 
   constructor(private slService: ShoppingListService) {}
 
   ngOnInit(): void {
-    this.ingredients = this.slService.getIngredients()
-    this.slService.ingredientsChanged.subscribe((ingredients: Ingredient[])=> {
-      this.ingredients = ingredients
-    })
+    this.ingredients = this.slService.getIngredients();
+    this.slService.ingredientsChanged.subscribe((ingredients: Ingredient[]) => {
+      this.ingredients = ingredients;
+    });
   }
 }
 ```
 
 In our shopping-edit component, we can now offload the event emission to the shopping list service.
 
-``` typescript
+```typescript
 export class ShoppingEditComponent implements OnInit {
-  @ViewChild('nameInput', { static: false }) nameInputRef: ElementRef;
-  @ViewChild('amountInput', { static: false }) amountInputRef: ElementRef;
+  @ViewChild("nameInput", { static: false }) nameInputRef: ElementRef;
+  @ViewChild("amountInput", { static: false }) amountInputRef: ElementRef;
 
   constructor(private slService: ShoppingListService) {}
 
@@ -1257,7 +1249,7 @@ export class ShoppingEditComponent implements OnInit {
     const name = this.nameInputRef.nativeElement.value;
     const amount = this.amountInputRef.nativeElement.value;
     const newIngredient = new Ingredient(name, amount);
-    this.slService.addIngredient(newIngredient)
+    this.slService.addIngredient(newIngredient);
   }
 }
 ```
@@ -1266,31 +1258,40 @@ export class ShoppingEditComponent implements OnInit {
 
 At this point, we can now add ingredients to our recipe model. This will be an array of Ingredient objects.
 
-``` typescript
+```typescript
 export class Recipe {
   public name: string;
   public description: string;
   public imagePath: string;
-  public ingredients: Ingredient[]
+  public ingredients: Ingredient[];
 
-  constructor(name: string, description: string, imagePath: string, ingredients: Ingredient[]) {
+  constructor(
+    name: string,
+    description: string,
+    imagePath: string,
+    ingredients: Ingredient[]
+  ) {
     this.name = name;
     this.description = description;
     this.imagePath = imagePath;
-    this.ingredients = ingredients
+    this.ingredients = ingredients;
   }
 }
 ```
 
 We start by adding a click event listener to recipe-detail template
 
-``` html
-<li><a (click)="onAddToShoppingList()" style="cursor: pointer" >Add Ingredients to Shopping List</a></li>
+```html
+<li>
+  <a (click)="onAddToShoppingList()" style="cursor: pointer"
+    >Add Ingredients to Shopping List</a
+  >
+</li>
 ```
 
 We then create an **onAddToShoppingList()** method in our recipe-detail template which then calls the **addIngredientsToShoppingList()** from recipeService, wherein we pass recipe.ingredients.
 
-``` typescript
+```typescript
   onAddToShoppingList() {
     this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients)
   }
@@ -1298,7 +1299,7 @@ We then create an **onAddToShoppingList()** method in our recipe-detail template
 
 We need to inject the shopping-list service into our recipe service using the **@Injectable** decorator afterwards.
 
-``` typescript
+```typescript
 @Injectable()
 export class RecipeService {
   private recipes: Recipe[] = [
@@ -1320,7 +1321,7 @@ export class RecipeService {
 
 In our shopping-list service, we need to implement a new method for adding multiple ingredients. We could make use of a for loop, iterate through each ingredient then individually add them, but it will be inefficient since we will be making multiple event emissions. A more efficient method would be to add all ingredients at once, then emit the event. We can do this using spread operator.
 
-``` typescript
+```typescript
   addMultipleIngredients(ingredients: Ingredient[]) {
     // INEFFICIENT:
     // for (let ingredient of ingredients) {
@@ -1333,7 +1334,7 @@ In our shopping-list service, we need to implement a new method for adding multi
 }
 ```
 
-- - -
+---
 
 ## Routing
 
@@ -1341,7 +1342,7 @@ In our shopping-list service, we need to implement a new method for adding multi
 
 We register our routing in the app.module file. The path property defines the path for the url, while the component property tells angular what should be loaded in that route. We also need to import **RouterModule** to our app.module. The RouterModule's special method forRoot() allows us to register routes.
 
-``` typescript
+```typescript
 const appRoutes: Routes = [
   {
     path: '',
@@ -1367,17 +1368,17 @@ const appRoutes: Routes = [
 
 We can now add the **router-outlet** directive into our template. This marks the place in our document where we want angular router to load the component of the currently selected route.
 
-``` html
+```html
 <div class="row">
-    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
-      <router-outlet></router-outlet>
-    </div>
+  <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+    <router-outlet></router-outlet>
   </div>
+</div>
 ```
 
 Navigating through links can be done using the directive **routerLink** that angular provides. We can also make use of property binding for routerLink wherein we pass an array of individual path elements as illustrated below.
 
-``` html
+```html
 <li role="presentation" class="active"><a routerLink="/">Home</a></li>
 <li role="presentation"><a routerLink="/servers">Servers</a></li>
 <li role="presentation"><a [routerLink]="['/users']">Users</a></li>
@@ -1389,29 +1390,39 @@ Angular gives us the directive **routerLinkActive** to dynamically style an elem
 
 We pass the javascript object `exact: true` to routerLinkActiveOptions to tell angular that the link will be active if and only if its address is /.
 
-``` html
-<li role="presentation" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" ><a routerLink="/">Home</a></li>
-<li role="presentation" routerLinkActive="active"><a routerLink="/servers">Servers</a></li>
-<li role="presentation" routerLinkActive="active"><a [routerLink]="['/users']">Users</a></li>
+```html
+<li
+  role="presentation"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{exact: true}"
+>
+  <a routerLink="/">Home</a>
+</li>
+<li role="presentation" routerLinkActive="active">
+  <a routerLink="/servers">Servers</a>
+</li>
+<li role="presentation" routerLinkActive="active">
+  <a [routerLink]="['/users']">Users</a>
+</li>
 ```
 
 ##### Navigating Programmatically
 
 We can navigate programatically by injecting **Router** to a component. A route is defined by an array of the single or different elements of a new path.
 
-``` typescript
+```typescript
 export class HomeComponent implements OnInit {
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
 
   onLoadServers() {
-    this.router.navigate(['/servers'])
+    this.router.navigate(["/servers"]);
   }
 }
 ```
 
 Unlike routerLink which always knows the current loaded route, Router does not. If we want to tell navigate where we currently are, we can to pass a second argument. We need to inject the current active route via **ActivatedRoute**. For the below example, if we call onReload while we are on `/servers`, we will end up in `/servers/servers`
 
-``` typescript
+```typescript
 export class ServersComponent implements OnInit {
   ...
   constructor(private router: Router, private route: ActivatedRoute) { }
@@ -1427,7 +1438,7 @@ export class ServersComponent implements OnInit {
 We can add dynamic segments to our paths using `:`.
 
 ```
-const appRoutes: Routes = [ 
+const appRoutes: Routes = [
   {
     path: 'users/:id/:name',
     component: UserComponent
@@ -1437,24 +1448,24 @@ const appRoutes: Routes = [
 
 If we want to access the parameters that are encoded in the url, we can inject **ActivatedRoute**, and then retrieve the parameters from the snapshot.params object.
 
-``` typescript
+```typescript
 export class UserComponent implements OnInit {
-  user: {id: number, name: string};
+  user: { id: number; name: string };
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.user = {
-      id: this.route.snapshot.params['id'],
-      name: this.route.snapshot.params['name']
-    }
+      id: this.route.snapshot.params["id"],
+      name: this.route.snapshot.params["name"],
+    };
   }
 }
 ```
 
 We can now access the parameters in our template.
 
-``` html
+```html
 <p>User with ID {{user.id}} loaded.</p>
 <p>User name is {{user.name}}</p>
 ```
@@ -1470,7 +1481,7 @@ The above implementation however is flawed, because if we reaccess the same endp
 
 An observable is a feature added by some third-party package which allows us to work with asynchronous tasks. In other words, it is a way to subscribe to some future event and then execute some command when it happens.
 
-``` typescript
+```typescript
 export class UserComponent implements OnInit, OnDestroy {
   user: {id: number, name: string};
   paramsSubscription: Subscription
@@ -1499,7 +1510,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
 Child routes can be setup using the **children** property of Routes.
 
-``` typescript
+```typescript
 {
     path: "servers",
     component: ServersComponent,
@@ -1518,7 +1529,7 @@ Child routes can be setup using the **children** property of Routes.
 
 These child routes will need an outlet where it will be loaded. In our servers.component template, we add the router-outlet. This will add a new hook that will be used on all child routes of the route being loaded on `/servers`
 
-``` html
+```html
 <router-outlet></router-outlet>
 ```
 
@@ -1526,7 +1537,7 @@ These child routes will need an outlet where it will be loaded. In our servers.c
 
 We can add query parameters by making use of the **queryParams** property. It is important to note that **queryParams** is not a directive, it is a bindable property of the routerLink directive. We also have the property fragment which adds a # anchor.
 
-``` html
+```html
 <a
   [routerLink]="['/servers', 5, 'edit']"
   [queryParams]="{allowEdit: '1'}"
@@ -1534,18 +1545,18 @@ We can add query parameters by making use of the **queryParams** property. It is
   href="#"
   class="list-group-item"
   *ngFor="let server of servers"
->
+></a>
 ```
 
 Clicking the above link will bring us to `/servers/5/edit?allowEdit=1#loading`
 
 We can also do this programatically. Take for instance the following template wherein we pass a number to the onLoadServers method:
 
-``` html
+```html
 <button class="btn btn-primary" (click)="onLoadServers(1)">Load Servers</button>
 ```
 
-``` typescript
+```typescript
 export class HomeComponent implements OnInit {
   constructor(private router: Router) {}
 
@@ -1564,7 +1575,7 @@ Clicking on the button will bring us to `http://localhost:4200/servers/1/edit?al
 
 To retrieve query parameters and fragments, we need to inject **ActivatedRoute**. Similar to passing parameters to routes as above, we can use **snapshot** but it brings the same disadvantages.
 
-``` typescript
+```typescript
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
@@ -1577,20 +1588,20 @@ To retrieve query parameters and fragments, we need to inject **ActivatedRoute**
 
 In the example below, we only allow the user to edit the server with an id of 3.
 
-``` html
-      <a
-        [routerLink]="['/servers', server.id]"
-        [queryParams]="{allowEdit: server.id === 3 ? '1' : '0'}"
-        fragment="loading"
-        href="#"
-        class="list-group-item"
-        *ngFor="let server of servers"
-      >
+```html
+<a
+  [routerLink]="['/servers', server.id]"
+  [queryParams]="{allowEdit: server.id === 3 ? '1' : '0'}"
+  fragment="loading"
+  href="#"
+  class="list-group-item"
+  *ngFor="let server of servers"
+></a>
 ```
 
 Inside the edit-server component, we need to add a new property allowEdit and setup a subscription to it. The following code simply sets allowEdit property to true if the **allowEdit link parameter** is set to 1.
 
-``` typescript
+```typescript
 export class EditServerComponent implements OnInit {
   allowEdit = false
   ...
@@ -1608,14 +1619,14 @@ The problem is, once we navigate away from the page, ie, when clicking the edit 
 
 To preserve the query parameters once we navigate further into our component, we can use the **queryParamsHandling** property of Router's navigate method. The following is to be added in server component.
 
-``` html
-<button class="btn btn-primary" (click)="onEdit()" >Edit Server</button>
+```html
+<button class="btn btn-primary" (click)="onEdit()">Edit Server</button>
 ```
 
-``` typescript
+```typescript
   onEdit() {
     this.router.navigate(['edit'], {
-      relativeTo: this.route, 
+      relativeTo: this.route,
       queryParamsHandling: 'preserve'
     })
   }
@@ -1625,7 +1636,7 @@ To preserve the query parameters once we navigate further into our component, we
 
 We can rediret the user using the **redirectTo** property of Routes. The double asterisk path means to catch all paths that are not included in the app. This route should be the last to be declared.
 
-``` typescript
+```typescript
   ...
   {
     path: "not-found",
@@ -1639,9 +1650,9 @@ We can rediret the user using the **redirectTo** property of Routes. The double 
 
 ##### Outsourcing Routing to its own Module
 
-We created a new file *app-routing.module.ts*. We need to pass the RouterModule to the export property of NgModule, so that it will be accessible in the destination module.
+We created a new file _app-routing.module.ts_. We need to pass the RouterModule to the export property of NgModule, so that it will be accessible in the destination module.
 
-``` typescript
+```typescript
 const appRoutes: Routes = [
   ...
   ]
@@ -1656,7 +1667,7 @@ export class AppRoutingModule {}
 
 We can now then import it to app.module
 
-``` typescript
+```typescript
   imports: [
     ...
     AppRoutingModule
@@ -1667,9 +1678,9 @@ We can now then import it to app.module
 
 A Route Guard is a functionality that is executed before a route is loaded or once we want to leave a route.
 
-We first created a fake authentication service *auth.service.ts*
+We first created a fake authentication service _auth.service.ts_
 
-``` typescript
+```typescript
 export class AuthService {
   loggedIn = false;
 
@@ -1692,9 +1703,9 @@ export class AuthService {
 }
 ```
 
-We then create the service *auth-guard.service.ts* which implements **canActivate**. Our canActivate method takes 2 arguments: AcitvatedRouteSnapshot and RouterStateSnapshot.
+We then create the service _auth-guard.service.ts_ which implements **canActivate**. Our canActivate method takes 2 arguments: AcitvatedRouteSnapshot and RouterStateSnapshot.
 
-``` typescript
+```typescript
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
@@ -1716,7 +1727,7 @@ export class AuthGuard implements CanActivate {
 
 We inject Router and our AuthService into this service. The canActivate method returns a promise in this case. To use the guard, we should define in our app-routing module which routes should be protected by the guard. With the below change, the routes for /servers will be guarded. This means that servers and its child routes if AuthGuard's **canActivate** method returns true
 
-``` typescript
+```typescript
     path: "servers",
     canActivate: [AuthGuard],
     component: ServersComponent,
@@ -1735,13 +1746,13 @@ We inject Router and our AuthService into this service. The canActivate method r
 
 We will then need to provide them in the app module
 
-``` typescript
+```typescript
 providers: [ServersService, AuthService, AuthGuard],
 ```
 
 We can also protect child routes with **canActivateChild**. Since this example will use the same logic as canActivate, we just simply returned canActivate.
 
-``` typescript
+```typescript
   canActivateChild(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
@@ -1752,7 +1763,7 @@ We can also protect child routes with **canActivateChild**. Since this example w
 
 Using it is the same as above, we just need to set the canActivateChild property of Route.
 
-``` typescript
+```typescript
     path: "servers",
     canActivateChild: [AuthGuard],
     component: ServersComponent,
@@ -1773,12 +1784,12 @@ This now allows us to access `/servers`, but when we navigate to a child compone
 
 To test out the route guards, we created a fake authentication service in the home component.
 
-``` html
+```html
 <button class="btn btn-default" (click)="onLogin()">Login</button>
 <button class="btn btn-default" (click)="onLogout()">Logout</button>
 ```
 
-``` typescript
+```typescript
 export class HomeComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}
 
@@ -1797,7 +1808,7 @@ export class HomeComponent implements OnInit {
 
 With canDeactivate, we can control whether a user is allowed to leave a route. We start by adding a new property to edit-server which we set to true once a server instance is updated. With this, we redirect the user afterwards using Router. In this case, the user is redirected one level above relative to the current route.
 
-``` typescript
+```typescript
   constructor(
     private serversService: ServersService,
     private route: ActivatedRoute,
@@ -1813,11 +1824,11 @@ With canDeactivate, we can control whether a user is allowed to leave a route. W
   }
 ```
 
-To prevent users from accidentally navigating away, we can make use of canDeactivate method. We first create a new service under edit-server directory called *can-deactivate-guard*. In it, we create an interface **CanComponentDeactivate** has a method canDeactivate() that takes no arguments and returns either an Observable that resolves to a boolean, a promise that resolves to a boolean or a boolean.
+To prevent users from accidentally navigating away, we can make use of canDeactivate method. We first create a new service under edit-server directory called _can-deactivate-guard_. In it, we create an interface **CanComponentDeactivate** has a method canDeactivate() that takes no arguments and returns either an Observable that resolves to a boolean, a promise that resolves to a boolean or a boolean.
 
 The class CanDeactivateGuard is then created which implements the generic type **CanDeactivate** from angular router which wraps our CanComponentDeactivate interface. The canDeactivate() method of this class will be called by angular router once we try to leave a route.
 
-``` typescript
+```typescript
 export interface CanComponentDeactivate {
   canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
 }
@@ -1838,7 +1849,7 @@ export class CanDeactivateGuard
 
 We then add the guard service to our app-routing module
 
-``` typescript
+```typescript
       {
         path: ":id/edit",
         component: EditServerComponent,
@@ -1848,13 +1859,13 @@ We then add the guard service to our app-routing module
 
 and provide it to our app module
 
-``` typescript
+```typescript
 providers: [ServersService, AuthService, AuthGuard, CanDeactivateGuard],
 ```
 
 We now implement the interface CanComponentDeactivate to our edit-server component. Here is where we implement the actual logic for checking if we are allowed to leave a route.
 
-``` typescript
+```typescript
   canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
     if (!this.allowEdit) {
       return true;
@@ -1874,9 +1885,9 @@ We now implement the interface CanComponentDeactivate to our edit-server compone
 
 ##### Passing Data to a Route
 
-We can pass static data to a route using the *data* property of Route.
+We can pass static data to a route using the _data_ property of Route.
 
-``` typescript
+```typescript
   {
     path: "not-found",
     component: ErrorPageComponent,
@@ -1888,7 +1899,7 @@ We can pass static data to a route using the *data* property of Route.
 
 We can then use it in our error-page component. We can either assign it directly into a property, or make use of subscribe which is useful in case the data is expected to change.
 
-``` typescript
+```typescript
 export class ErrorPageComponent implements OnInit {
   errorMessage: string;
 
@@ -1907,7 +1918,7 @@ Aside from static data, we can also fetch dynamic data. First we set up a resolv
 
 The resolver will implement **Resolve** which resolves into a server object with an id, name, and status. The method resolve will take in 2 arguments: AcitvatedRouteSnapshot and RouterStateSnapshot. We can make use of our ServersService getServer() method that returns a server object,
 
-``` typescript
+```typescript
 interface Server {
   id: number;
   name: string;
@@ -1922,14 +1933,14 @@ export class ServerResolver implements Resolve<Server> {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<Server> | Promise<Server> | Server {
-    return this.serversService.getServer(+route.params['id'])
+    return this.serversService.getServer(+route.params["id"]);
   }
 }
 ```
 
 After providing ServerResolver in our app module, we can now add it into the routing module. We assign a key value pair of server and ServerResolver, which returns a Server object that will be stored into the **myServer** property that will be available in the component.
 
-``` typescript
+```typescript
 {
     path: "servers",
     // canActivate: [AuthGuard],
@@ -1950,7 +1961,7 @@ After providing ServerResolver in our app module, we can now add it into the rou
 
 Basically, the method **resolve()** will be called by Angular when the router is loaded. With this, the code from ngOnInit() of our server-component is now redundant and we can remove it. The object returned by the resolver will go into a **data** property.
 
-``` typescript
+```typescript
   ngOnInit() {
     this.route.data.subscribe((data: Data) => {
       this.server = data["myServer"];
@@ -1972,19 +1983,19 @@ Basically, the method **resolve()** will be called by Angular when the router is
 
 We set up the routes in a new file app-routing.module.ts. We need to use `pathMatch: 'full'` because if we set it to the default value of prefix, we will always be redirected from any path.
 
-``` typescript
+```typescript
 const appRoutes: Routes = [
   {
-    path: '',
-    redirectTo: '/recipes',
-    pathMatch: 'full',
+    path: "",
+    redirectTo: "/recipes",
+    pathMatch: "full",
   },
   {
-    path: 'recipes',
+    path: "recipes",
     component: RecipesComponent,
   },
   {
-    path: 'shoping-list',
+    path: "shoping-list",
     component: ShoppingListComponent,
   },
 ];
@@ -1998,13 +2009,13 @@ export class AppRoutingModule {}
 
 Afterwards, we also add it into the imports of the app module.
 
-``` typescript
+```typescript
   imports: [BrowserModule, FormsModule, AppRoutingModule],
 ```
 
 Finally we used `router-outlet` to render to the page
 
-``` html
+```html
 <div class="container">
   <div class="row">
     <div class="col-md-12">
@@ -2016,22 +2027,22 @@ Finally we used `router-outlet` to render to the page
 
 With routing, we no longer need to use click event listeners and emitters in our header component for navigation. Using the routerLinkActive directive wherein we define the class we want to attach to the element when the current route of the nested element (in this case, a) is active.
 
-``` html
-      <ul class="nav navbar-nav">
-        <li routerLinkActive="active">
-          <a routerLink="/recipes">Recipe</a>
-        </li>
-        <li routerLinkActive="active">
-          <a routerLink="/shopping-list">Shopping List</a>
-        </li>
-      </ul>
+```html
+<ul class="nav navbar-nav">
+  <li routerLinkActive="active">
+    <a routerLink="/recipes">Recipe</a>
+  </li>
+  <li routerLinkActive="active">
+    <a routerLink="/shopping-list">Shopping List</a>
+  </li>
+</ul>
 ```
 
 ##### Child Routing
 
 We add a child route to our app-routing module. There is a child route with a dynamic segment for `id`
 
-``` typescript
+```typescript
   {
     path: 'recipes',
     component: RecipesComponent,
@@ -2050,7 +2061,7 @@ We add a child route to our app-routing module. There is a child route with a dy
 
 To load a specific recipe by the id, we can configure route parameters. First we need to create a new method in our recipe service for getting a recipe by its id.
 
-``` typescript
+```typescript
   getRecipeById(id:number) {
     return this.recipes[id]
   }
@@ -2058,7 +2069,7 @@ To load a specific recipe by the id, we can configure route parameters. First we
 
 We then need to get access to ActivatedRoute by injecting it into our recipe-detail component. Since this component's value will possibly change after being rendered, we need to subscribe to it. We do so by subscribing to the **params** observable of Route. We make sure to cast params['id'] into a number.
 
-``` typescript
+```typescript
   id: number;
 
   constructor(
@@ -2077,18 +2088,18 @@ We then need to get access to ActivatedRoute by injecting it into our recipe-det
 
 We can setup the links by passing dynamic parameters to these links with routerLink. We need to be able to send the recipe id to the recipe-item component. We can do so by property binding from the recipe-list template
 
-``` html
-    <app-recipe-item
-      *ngFor="let recipeEl of recipes; let i = index"
-      [recipe]="recipeEl"
-      [id]="i"
-      (recipeSelected)="onRecipeSelected(recipeEl)"
-    ></app-recipe-item>
+```html
+<app-recipe-item
+  *ngFor="let recipeEl of recipes; let i = index"
+  [recipe]="recipeEl"
+  [id]="i"
+  (recipeSelected)="onRecipeSelected(recipeEl)"
+></app-recipe-item>
 ```
 
 We make sure to include this bound property using Input() decorator to the recipe-item component
 
-``` typescript
+```typescript
 export class RecipeItemComponent implements OnInit {
   @Input() id: number;
   ...
@@ -2097,15 +2108,17 @@ export class RecipeItemComponent implements OnInit {
 
 And finally apply it to the recipe-item template
 
-``` html
-<a 
+```html
+<a
   [routerLink]="[id]"
-style="cursor: pointer" class="list-group-item clearfix">
+  style="cursor: pointer"
+  class="list-group-item clearfix"
+></a>
 ```
 
 To implement the page for editing recipes, we start by creating the recipe-edit component and adding it into the app-routing module. It is important to note that the hardcoded `new` path should be declared before the dynamic paths.
 
-``` typescript
+```typescript
 {
         path: 'new',
         component: RecipeEditComponent,
@@ -2122,33 +2135,30 @@ To implement the page for editing recipes, we start by creating the recipe-edit 
 
 We can retrieve the recipe id from the route parameters by first injecting ActivatedRoute into the recipe-edit component. At the same time, we also check if the route being passed has an id, if it does not, **params['id']** will return null, thereby editMode will be set to false which means we are in new recipe mode.
 
-``` typescript
+```typescript
 export class RecipeEditComponent implements OnInit {
   id: number;
-  editMode:boolean = false;
+  editMode: boolean = false;
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(
-      (params: Params) => {
-        this.id = +params['id']
-        this.editMode = params['id'] != null
-        console.log(this.editMode)
-      }
-    )
+    this.route.params.subscribe((params: Params) => {
+      this.id = +params["id"];
+      this.editMode = params["id"] != null;
+      console.log(this.editMode);
+    });
   }
-
 }
 ```
 
 To add the navigation to `/new`, we just add a click event listener and its corresponding method. We can inject Router and use its navigate() method, together with ActivatedRoute to get the current route which will be passed to **relativeTo**.
 
-``` html
-<button class="btn btn-success" (click)="onNewRecipe()"  >New Recipe</button>
+```html
+<button class="btn btn-success" (click)="onNewRecipe()">New Recipe</button>
 ```
 
-``` typescript
+```typescript
   constructor(
     private recipeService: RecipeService,
     private router: Router,
@@ -2166,7 +2176,7 @@ To add the navigation to `/new`, we just add a click event listener and its corr
 
 An observable are constructs to which we subscribe to be informed of changes in data. An observable can also be thought of as a data source. Between the observable and the observer, there is a stream wherein we can have multiple events emitted by the observable. Data sources may come from user input, HTTP requests or can be triggered in code. The observer has 3 hooks for handling data packages: normal data, errors or completion of the observable. Using code, we can define what should happen if we receive a new data package.
 
-``` typescript
+```typescript
   ngOnInit() {
     this.route.params.subscribe((params: Params) => {
       this.id = +params.id;
@@ -2174,7 +2184,7 @@ An observable are constructs to which we subscribe to be informed of changes in 
   }
 ```
 
-In the example above, *params* is an observable, and it is a stream of route parameters, which gives us a new *route* parameter whenever we go to a new page (change in url). We then get the new params in the function we pass to subscribe, and get the id param from that.
+In the example above, _params_ is an observable, and it is a stream of route parameters, which gives us a new _route_ parameter whenever we go to a new page (change in url). We then get the new params in the function we pass to subscribe, and get the id param from that.
 
 ##### Building own Observable
 
@@ -2184,7 +2194,7 @@ The subscribe method returns a **Subscription**, wherein we can store the subscr
 
 This will print out an incrementing value every second. And will stop once you navigate outisde the home.component.
 
-``` typescript
+```typescript
 export class HomeComponent implements OnInit, OnDestroy {
   private firstObsSubscription: Subscription;
 
@@ -2197,14 +2207,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.firstObsSubscription.unsubscribe()
+    this.firstObsSubscription.unsubscribe();
   }
 }
 ```
 
-We can build the above observable from the ground up too. We use the **Observable.create()** method which takes in an anonymous function and takes in an observer as an argument. The observer has the **next()** method which is used to emit a new value. We pass the *count* variable into next to let the observer know that the count variable has new data. We then subscribe to our custom observable using the **subscribe()** method as before.
+We can build the above observable from the ground up too. We use the **Observable.create()** method which takes in an anonymous function and takes in an observer as an argument. The observer has the **next()** method which is used to emit a new value. We pass the _count_ variable into next to let the observer know that the count variable has new data. We then subscribe to our custom observable using the **subscribe()** method as before.
 
-``` typescript
+```typescript
 export class HomeComponent implements OnInit, OnDestroy {
   private firstObsSubscription: Subscription;
 
@@ -2257,7 +2267,7 @@ To react to a completion, we can add a third argument to the subscribe() method.
 
 Sometimes we might not need the raw data that we get from a subscription. At times, we might transform the data. We can make use of Operators instead of transforming the data from within the function/subscription. We can do this by calling an observable's **pipe()** method, which every observable has. In the example below, we make use of the **map** operator.
 
-``` typescript
+```typescript
     const myOperator = customIntervalObservable.pipe(
       map((data: number) => {
         return "Round: " + (data + 1);
@@ -2274,7 +2284,7 @@ A subject is a special kind of observable. It is an object to which we can subsc
 
 The example below shows a traditional way of conditionally rendering a component using click event emitters and ngIf. We create a new service user.service and add an event emitter that resolves to a boolean to it
 
-``` typescript
+```typescript
 @Injectable({ providedIn: "root" })
 export class UserService {
   activatedEmitter = new EventEmitter<boolean>();
@@ -2283,7 +2293,7 @@ export class UserService {
 
 We then inject this service to our user.component and listen to the click event onActivate()
 
-``` typescript
+```typescript
   constructor(
     private route: ActivatedRoute,
     private userService: UserService
@@ -2296,7 +2306,7 @@ We then inject this service to our user.component and listen to the click event 
 
 We then set up a listener in our app.component
 
-``` typescript
+```typescript
 export class AppComponent implements OnInit {
   userActivated = false;
 
@@ -2312,13 +2322,13 @@ export class AppComponent implements OnInit {
 
 Then we include a conditional ngIf in our template
 
-``` html
+```html
 <p *ngIf="userActivated">Activated!</p>
 ```
 
 We can recreate the above functionality using Subjects. We start by writing the service. The Subject in this case emits a boolean data.
 
-``` typescript
+```typescript
 export class UserService {
   activatedEmitter = new Subject<boolean>();
 }
@@ -2326,7 +2336,7 @@ export class UserService {
 
 Then, we can use the Subject's next method from the click listener
 
-``` typescript
+```typescript
   onActivate() {
     this.userService.activatedEmitter.next(true);
   }
@@ -2334,21 +2344,23 @@ Then, we can use the Subject's next method from the click listener
 
 We still need to call **subscribe()** on the subject, since it is still an observable
 
-``` typescript
+```typescript
 export class AppComponent implements OnInit, OnDestroy {
   userActivated = false;
-  private activatedSub: Subscription
+  private activatedSub: Subscription;
 
   constructor(private userService: UserService) {}
 
   ngOnInit() {
-    this.activatedSub = this.userService.activatedEmitter.subscribe((didActivate) => {
-      this.userActivated = didActivate;
-    });
+    this.activatedSub = this.userService.activatedEmitter.subscribe(
+      (didActivate) => {
+        this.userActivated = didActivate;
+      }
+    );
   }
 
   ngOnDestroy() {
-    this.activatedSub.unsubscribe()
+    this.activatedSub.unsubscribe();
   }
 }
 ```
@@ -2357,12 +2369,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
 We updated our shopping-list.service to make use of Subjects instead of Event Emitters
 
-``` typescript
+```typescript
 export class ShoppingListService {
   ingredientsChanged = new Subject<Ingredient[]>();
   private ingredients: Ingredient[] = [
-    new Ingredient('apples', 5),
-    new Ingredient('oranges', 2),
+    new Ingredient("apples", 5),
+    new Ingredient("oranges", 2),
   ];
 
   getIngredients() {
@@ -2382,22 +2394,24 @@ export class ShoppingListService {
 
 We then go to our shopping-list.component and store our subscription to the property igChangeSub and unsubscribe from it on destroy.
 
-``` typescript
+```typescript
 export class ShoppingListComponent implements OnInit, OnDestroy {
   ingredients: Ingredient[] = [];
-  private igChangeSub: Subscription
+  private igChangeSub: Subscription;
 
   constructor(private slService: ShoppingListService) {}
 
   ngOnInit(): void {
-    this.ingredients = this.slService.getIngredients()
-    this.igChangeSub = this.slService.ingredientsChanged.subscribe((ingredients: Ingredient[])=> {
-      this.ingredients = ingredients
-    })
+    this.ingredients = this.slService.getIngredients();
+    this.igChangeSub = this.slService.ingredientsChanged.subscribe(
+      (ingredients: Ingredient[]) => {
+        this.ingredients = ingredients;
+      }
+    );
   }
 
   ngOnDestroy() {
-    this.igChangeSub.unsubscribe()
+    this.igChangeSub.unsubscribe();
   }
 }
 ```
@@ -2410,18 +2424,18 @@ There are two approaches to handling forms in Angular: Template-Driven and React
 
 > Reference activity: [forms-td-start](https://github.com/demiglace0505/angular-course/tree/master/forms-td-start)
 
-We need to make sure that **FormsModule** is incldued as an import in our app.module. With this, Angular automatically generates the javascript representation from our form tags. To add an input as a control, we need to add the directive **ngModel** as a property, and also a *name* property.
+We need to make sure that **FormsModule** is incldued as an import in our app.module. With this, Angular automatically generates the javascript representation from our form tags. To add an input as a control, we need to add the directive **ngModel** as a property, and also a _name_ property.
 
-To submit a form, we use the directive **ngSubmit**. This directive will be fired whenever the form is submitted. To access the form elements, we can use local references, in this case, *#f* and pass it into the onSubmit() method.
+To submit a form, we use the directive **ngSubmit**. This directive will be fired whenever the form is submitted. To access the form elements, we can use local references, in this case, _#f_ and pass it into the onSubmit() method.
 
-``` html
+```html
 <form (ngSubmit)="onSubmit(f)" #f="ngForm">
   ...
   <button class="btn btn-primary" type="submit">Submit</button>
 </form
 ```
 
-``` typescript
+```typescript
   onSubmit(f: NgForm) {
     console.log(f);
   }
@@ -2429,7 +2443,7 @@ To submit a form, we use the directive **ngSubmit**. This directive will be fire
 
 We can also access an element using the **@ViewChild** decorator
 
-``` typescript
+```typescript
   @ViewChild("f") signupForm: NgForm;
 
   onSubmit() {
@@ -2437,13 +2451,13 @@ We can also access an element using the **@ViewChild** decorator
   }
 ```
 
-For form validation, we can make use of property binding and bind it to the previous local reference to *f*. We could also select css classes, in this case we select input elements with the classes ng-invalid and ng-touched. These will have a red border. The ng-touched class will only activate once the input element has been touched.
+For form validation, we can make use of property binding and bind it to the previous local reference to _f_. We could also select css classes, in this case we select input elements with the classes ng-invalid and ng-touched. These will have a red border. The ng-touched class will only activate once the input element has been touched.
 
-``` html
-<button class="btn btn-primary" type="submit" [disabled]="!f.valid">
+```html
+<button class="btn btn-primary" type="submit" [disabled]="!f.valid"></button>
 ```
 
-``` css
+```css
 input.ng-invalid.ng-touched {
   border: 1px solid red;
 }
@@ -2451,17 +2465,16 @@ input.ng-invalid.ng-touched {
 
 An easy way to get access to the control created by Angular is to associate a local reference to the element and binding it to **ngModel** which exposes the information about this control.
 
-``` html
-<input
-  ...
-  #email="ngModel"
-/>
-<span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>
+```html
+<input ... #email="ngModel" />
+<span class="help-block" *ngIf="!email.valid && email.touched"
+  >Please enter a valid email!</span
+>
 ```
 
-Using ngModel property binding, we can also select a default value for select tags. We can also use two-way binding to instantly display a value for instance as shown below in the *textarea* element
+Using ngModel property binding, we can also select a default value for select tags. We can also use two-way binding to instantly display a value for instance as shown below in the _textarea_ element
 
-``` html
+```html
   <select
     [ngModel]="defaultQuestion"
     name="secret"
@@ -2483,20 +2496,20 @@ Using ngModel property binding, we can also select a default value for select ta
 <p>Your reply: {{ answer }}</p>
 ```
 
-We can group form controls together by adding the directive **ngModelGroup** to a parent container. In this example, the output will have a *userData* property inside *value* that contains the email and username input. Aside from this, we can access the javascript representation of the control by using a local reference, in this case, #userData.
+We can group form controls together by adding the directive **ngModelGroup** to a parent container. In this example, the output will have a _userData_ property inside _value_ that contains the email and username input. Aside from this, we can access the javascript representation of the control by using a local reference, in this case, #userData.
 
-``` html
-<div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">
+```html
+<div id="user-data" ngModelGroup="userData" #userData="ngModelGroup"></div>
 ```
 
 We can also patch values into a group of inputs using the **patchValue()** method available to forms wrapped by ngForm.
 
-``` typescript
-    this.signupForm.form.patchValue({
-      userData: {
-        username: suggestedName,
-      },
-    });
+```typescript
+this.signupForm.form.patchValue({
+  userData: {
+    username: suggestedName,
+  },
+});
 ```
 
 ##### Reactive Forms
@@ -2505,7 +2518,7 @@ We can also patch values into a group of inputs using the **patchValue()** metho
 
 In Reactive forms, the forms are created programmatically in TypeScript. We first initialize the form by calling a new instance of **FormGroup**. Inside, we add controls to the form using **FormControl**. The first argument for FormControl is the initial state, the second is a validator or array of validators to be applied to this form and the third is for async validators.
 
-``` typescript
+```typescript
   ngOnInit() {
     this.signupForm = new FormGroup({
       username: new FormControl(null),
@@ -2521,7 +2534,7 @@ In Reactive forms, the forms are created programmatically in TypeScript. We firs
 
 To synchronize our forms with the html inputs, we first need to add the directive **formGroup** via property binding to our form tag. We need to import ReactiveFormsModule in our app.module to do so. To connect the controls from our html template, we use the directive **formControlName** which we can use using either string or by property binding to the property we initialized earlier. Submitting the form is identical with template-driven forms, wherein we use the **ngSubmit** directive, but this time, we don't need to get the form using local reference anymore.
 
-``` html
+```html
 <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
   <div class="form-group">
     <label for="username">Username</label>
@@ -2543,8 +2556,7 @@ To synchronize our forms with the html inputs, we first need to add the directiv
   </div>
   <div class="radio" *ngFor="let gender of genders">
     <label>
-      <input formControlName="gender" type="radio" [value]="gender" />{{
-        gender
+      <input formControlName="gender" type="radio" [value]="gender" />{{ gender
       }}
     </label>
   </div>
@@ -2554,17 +2566,17 @@ To synchronize our forms with the html inputs, we first need to add the directiv
 
 In the reactive approach, we can add validation using the second argument for FormControl.
 
-``` typescript
-    this.signupForm = new FormGroup({
-      username: new FormControl(null, Validators.required),
-      email: new FormControl(null, [Validators.required, Validators.email]),
-      gender: new FormControl("male"),
-    });
+```typescript
+this.signupForm = new FormGroup({
+  username: new FormControl(null, Validators.required),
+  email: new FormControl(null, [Validators.required, Validators.email]),
+  gender: new FormControl("male"),
+});
 ```
 
 To get access to our controls, we can use the FormGroup's **get** method. We pass into the get method the path to the element.
 
-``` html
+```html
 <span
   class="help-block"
   *ngIf="
@@ -2576,13 +2588,13 @@ To get access to our controls, we can use the FormGroup's **get** method. We pas
 
 We can also group form controls using the **formGroupName** directive. With this, we need to update the structure of the form in the app.component typescript.
 
-``` html
+```html
 <div formGroupName="userData">
-  <div class="form-group">
-  ...
+  <div class="form-group">...</div>
+</div>
 ```
 
-``` typescript
+```typescript
     this.signupForm = new FormGroup({
       userData: new FormGroup({
         username: new FormControl(null, Validators.required),
@@ -2595,7 +2607,7 @@ We can also group form controls using the **formGroupName** directive. With this
 
 For array controls, we can make use of **FormArray**. We then use the FormGroup's get method to extract the hobbies FormArray, which we explicitly cast to FormArray. We can add a new control to the form using the array.push method.
 
-``` typescript
+```typescript
   ngOnInit() {
     this.signupForm = new FormGroup({
       ...
@@ -2614,7 +2626,7 @@ For array controls, we can make use of **FormArray**. We then use the FormGroup'
 
 We then synchronize this to our html template. We can do so using **formArrayName** directive. We then have to make use of property binding to bind **formControlName** to the index.
 
-``` html
+```html
 <div formArrayName="hobbies">
   <h4>Your hobbies</h4>
   <button class="btn btn-default" type="button" (click)="onAddHobby()">
@@ -2640,9 +2652,9 @@ value: {
 }
 ```
 
-With reactive forms, we can easily build our own custom validators. A validator is a function that angular executes automatically when it checks the validity of the form control. The validator needs to take an argument of FormControl and returns an object with a string key and boolean value. The following example checks if the value being input is included in an array of forbidden values. In this case, the function returns the key *nameIsForbidden* with value true. Otherwise, the function should return null.
+With reactive forms, we can easily build our own custom validators. A validator is a function that angular executes automatically when it checks the validity of the form control. The validator needs to take an argument of FormControl and returns an object with a string key and boolean value. The following example checks if the value being input is included in an array of forbidden values. In this case, the function returns the key _nameIsForbidden_ with value true. Otherwise, the function should return null.
 
-``` typescript
+```typescript
   // including the validator
         username: new FormControl(null, [
           Validators.required,
@@ -2658,9 +2670,9 @@ With reactive forms, we can easily build our own custom validators. A validator 
   }
 ```
 
-The *nameIsForbidden* is our error code. We can make use of the error message in our template.
+The _nameIsForbidden_ is our error code. We can make use of the error message in our template.
 
-``` html
+```html
 <span *ngIf="signupForm.get('userData.username').errors['nameIsForbidden']"
   >This username is forbidden</span
 >
@@ -2671,7 +2683,7 @@ The *nameIsForbidden* is our error code. We can make use of the error message in
 
 Asynchronous validators can also be used. This time, it returns a promise which resolves to a key value pair of the error message and boolean. Asynchronous validators are used as the third argument to our FormControl.
 
-``` typescript
+```typescript
   email: new FormControl(null, [Validators.required, Validators.email], this.forbiddenEmails.bind(this)),
 
   //...
@@ -2692,31 +2704,361 @@ Asynchronous validators can also be used. This time, it returns a promise which 
 
 With reactive forms, we can also subscribe and react to changes in status and value. These are hooks (observables) that we can listen into for changes.
 
-``` typescript
-    this.signupForm.valueChanges.subscribe((value) => {
-      console.log(value);
-    });
+```typescript
+this.signupForm.valueChanges.subscribe((value) => {
+  console.log(value);
+});
 
-    this.signupForm.statusChanges.subscribe((status) => {
-      console.log(status);
-    });
+this.signupForm.statusChanges.subscribe((status) => {
+  console.log(status);
+});
 ```
 
 Aside from listening for changes, we can also update the forms. We can use either **setValue** or **patchValue**
 
-``` typescript
-    this.signupForm.setValue({
-      userData: {
-        username: "Max",
-        email: "Max@max.com",
-      },
-      gender: "male",
-      hobbies: [],
-    });
+```typescript
+this.signupForm.setValue({
+  userData: {
+    username: "Max",
+    email: "Max@max.com",
+  },
+  gender: "male",
+  hobbies: [],
+});
 
-    this.signupForm.patchValue({
-      userData: {
-        username: "Anna",
-      },
+this.signupForm.patchValue({
+  userData: {
+    username: "Anna",
+  },
+});
+```
+
+### Project: Forms
+
+##### Shopping-List edit: Template-driven approach
+
+We will be making use of template-driven forms in this project. We make use of (ngSubmit) for form submission, and we will use a local reference on the form element to obtain access to the form javascript that angular creates. The form object passed into onAddItem is of type NgForm. We then add the **ngModel** directives and name property to our inputs. We also added validators to the form inputs. Other than required, we used the **[pattern]** built in validator, which will check user input against a regular expression. In this case, we only want positive integers.
+
+```html
+<form (ngSubmit)="onAddItem(f)" #f="ngForm">
+  <input
+    type="number"
+    class="form-control"
+    id="amount"
+    ngModel
+    name="amount"
+    required
+    [pattern]="'^[1-9]+[0-9]*$'"
+  />
+</form>
+```
+
+```typescript
+  onSubmit(form: NgForm) {
+    const value = form.value;
+    const newIngredient = new Ingredient(value.name, value.amount);
+    this.slService.addIngredient(newIngredient);
+  }
+```
+
+For editting a shopping list item, we first added a new subject startedEditing to the shopping-list.service which will hold a number in the end.
+
+```typescript
+startedEditing = new Subject<number>();
+```
+
+We then make use of the shopping-list.service to then send the _index_ to our subject from the shopping-list component.
+
+```typescript
+  onEditItem(index: number) {
+    this.slService.startedEditing.next(index)
+  }
+```
+
+This will allow us to listen to this subject from other place, in this case, the init component of shopping-edit. In here, we set editedItem into our ingredient using the getIngredient method from our shopping-list.service. We make use of **@ViewChild** decorator in order to access our form, with the reference _f_.
+
+```typescript
+  @ViewChild('f', { static: false }) slForm: NgForm;
+  subscription: Subscription;
+  editMode = false;
+  editedItemIndex: number;
+  editedItem: Ingredient
+
+  ngOnInit(): void {
+    this.subscription = this.slService.startedEditing.subscribe(
+      (index: number) => {
+        this.editedItemIndex = index;
+        this.editMode = true;
+        this.editedItem = this.slService.getIngredient(index);
+        this.slForm.setValue({
+          name: this.editedItem.name,
+          amount: this.editedItem.amount,
+        });
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe()
+  }
+```
+
+We also added functionality for editing an ingredient and deleting an ingredient. We add the following method to the shopping-list.service
+
+```typescript
+  updateIngredient(index: number, newIngredient: Ingredient) {
+    this.ingredients[index] = newIngredient
+    this.ingredientsChanged.next(this.ingredients.slice())
+  }
+
+  deleteIngredient(index: number) {
+    this.ingredients.splice(index, 1);
+    this.ingredientsChanged.next(this.ingredients.slice());
+  }
+```
+
+We then have to call the updateIngredient() method from shopping-edit.component if we are on edit mode. Otherwise, addIngredient will be fired.
+
+```typescript
+  onSubmit(form: NgForm) {
+    const value = form.value;
+    const newIngredient = new Ingredient(value.name, value.amount);
+    if (this.editMode) {
+      this.slService.updateIngredient(this.editedItemIndex, newIngredient);
+    } else {
+      this.slService.addIngredient(newIngredient);
+    }
+  }
+```
+
+##### Recipe edit: Reactive approach
+
+We started out by creating a bare template for the form. At this point, it is important to know whether we are on edit mode or in new mode, because we might need to prepopulate fields. We start by creating a private method initForm() in our recipe-edit.component. IIn this private method, we initialize our **FormGroup** which takes a javascript object containning key value pairs for the controls we want to register. We call our initForm() method in our init, right after a change in route parameters.
+
+```typescript
+  ngOnInit(): void {
+    this.route.params.subscribe((params: Params) => {
+      this.id = +params['id'];
+      this.editMode = params['id'] != null;
+      // console.log(this.editMode);
+      this.initForm();
     });
+  }
+
+  private initForm() {
+    let recipeName = '';
+    let recipeImagePath = '';
+    let recipeDescription = '';
+
+    if (this.editMode) {
+      const recipe = this.recipeService.getRecipeById(this.id);
+      recipeName = recipe.name;
+      recipeImagePath = recipe.imagePath;
+      recipeDescription = recipe.description;
+    }
+
+    this.recipeForm = new FormGroup({
+      name: new FormControl(recipeName),
+      imagePath: new FormControl(recipeImagePath),
+      description: new FormControl(recipeDescription),
+    });
+  }
+```
+
+We now have to sync the html template with our form. We begin by adding **ReactiveFormsModule** to our app module. We use the **formGroup** directive with property binding because we need to pass our recipeForm property into it. We then proceed to assign our controls to the inputs using **formControlName** directive
+
+```html
+<form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
+  <input type="text" id="name" class="form-control" formControlName="name" />
+  <input
+    type="text"
+    id="imagePath"
+    class="form-control"
+    formControlName="imagePath"
+  />
+  <textarea
+    type="text"
+    id="description"
+    class="form-control"
+    rows="6"
+    formControlName="description"
+  ></textarea>
+</form>
+```
+
+To add the control for adding multiple ingredients, we need to instantiate a new **FormArray**. For each ingredient in the ingredients array of recipe, we will create a new **FormGroup** which will contain two form controls: one for the name and one for amount.
+
+```typescript
+let recipeIngredients = new FormArray([]);
+if (recipe["ingredients"]) {
+  for (let ingredient of recipe.ingredients) {
+    recipeIngredients.push(
+      new FormGroup({
+        name: new FormControl(ingredient.name),
+        amount: new FormControl(ingredient.amount),
+      })
+    );
+  }
+}
+
+this.recipeForm = new FormGroup({
+  ...
+  ingredients: recipeIngredients,
+});
+```
+
+We then need to synchronize our html template once again. We use **formArrayName** directive, which is bound to the ingredients property of the FormGroup above. Inside this formArrayName, we have a container div for the form group. To obtain the control, we used a helper getter **get controls()** which we then loop through for each control. We use property binding to bind **formGroupName** to the index of control in the for loop. We finally make use of the **formControlName** directive for the two inputs, one for the name and another for amount.
+
+```typescript
+  get controls() {
+    return (<FormArray>this.recipeForm.get('ingredients')).controls
+  }
+```
+
+```html
+<div class="col-xs-12" formArrayName="ingredients">
+  <div
+    class="row"
+    *ngFor="let ingredientControl of controls; let i = index"
+    [formGroupName]="i"
+  >
+    <div class="col-xs-8">
+      <input type="text" class="form-control" formControlName="name" />
+    </div>
+    <div class="col-xs-2">
+      <input type="number" class="form-control" formControlName="amount" />
+    </div>
+    <div class="col-xs-2">
+      <button class="btn btn-danger">X</button>
+    </div>
+  </div>
+</div>
+```
+
+We also added a button for adding additional forms for more ingredients. In the method onAddIngredient(), we add a new FormGroup containing two FormControls with blank default values by pushing into our recipeForm's _ingredients_ array. We need to cast this into `<FormArray>` before doing so.
+
+```html
+<button class="btn btn-success" (click)="onAddIngredient()" type="button">
+  Add Ingredient
+</button>
+```
+
+```typescript
+  onAddIngredient() {
+    (<FormArray>this.recipeForm.get('ingredients')).push(
+      new FormGroup({
+        name: new FormControl(),
+        amount: new FormControl(),
+      })
+    );
+  }
+```
+
+For validators, we used the built in required validators, and we also created our own validator via regex that only takes positive integers using **Validators.pattern()**
+
+```typescript
+  onAddIngredient() {
+    (<FormArray>this.recipeForm.get('ingredients')).push(
+      new FormGroup({
+        name: new FormControl(null, Validators.required),
+        amount: new FormControl(null, [
+          Validators.required,
+          Validators.pattern(/^[1-9]+[0-9]*$/),
+        ]),
+      })
+    );
+  }
+});
+```
+
+We then add this to the html template by binding disabled to recipeForm.valid
+
+```html
+<button class="btn btn-success" type="submit" [disabled]="!recipeForm.valid">
+  Save
+</button>
+```
+
+And for styling:
+
+```css
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+```
+
+To submit changes, whether by adding a new recipe or updating an old recipe, we need to add new methods to our recipe.service.
+
+```typescript
+  addRecipe(recipe: Recipe) {
+    this.recipes.push(recipe);
+  }
+
+  updateRecipe(index: number, newRecipe: Recipe) {
+    this.recipes[index] = newRecipe;
+  }
+```
+
+We then create our onSubmit() method:
+
+```typescript
+  onSubmit() {
+    const newRecipe = new Recipe(
+      this.recipeForm.value['name'],
+      this.recipeForm.value['description'],
+      this.recipeForm.value['imagePath'],
+      this.recipeForm.value['ingredients']
+    );
+    if (this.editMode) {
+      this.recipeService.updateRecipe(this.id, newRecipe);
+    } else {
+      this.recipeService.addRecipe(newRecipe)
+    }
+  }
+```
+
+But since the values from the form has exactly the same format as our recipe model and the same names, we can use a shorthand:
+
+```typescript
+if (this.editMode) {
+  this.recipeService.updateRecipe(this.id, this.recipeForm.value);
+} else {
+  this.recipeService.addRecipe(this.recipeForm.value);
+}
+```
+
+And finally, to refresh our recipes list when a new one gets added or something gets changed, we set up a Subject, wherein we pass an array of Recipe objects. The following is added in our recipe.service, and for recipe-list.component, we set up a subscription to the subject.
+
+```typescript
+export class RecipeService {
+  recipesChanged = new Subject<Recipe[]>();
+
+  addRecipe(recipe: Recipe) {
+    this.recipes.push(recipe);
+    this.recipesChanged.next(this.recipes.slice());
+  }
+
+  updateRecipe(index: number, newRecipe: Recipe) {
+    this.recipes[index] = newRecipe;
+    this.recipesChanged.next(this.recipes.slice());
+  }
+}
+```
+
+```typescript
+  ngOnInit(): void {
+    this.recipeService.recipesChanged.subscribe((recipes: Recipe[]) => {
+      this.recipes = recipes;
+    });
+  }
+```
+
+For deleting recipes, we first create a service in our recipe.service
+
+```typescript
+  deleteRecipe(index: number) {
+    this.recipes.splice(index, 1)
+    this.recipesChanged.next(this.recipes.slice());
+  }
 ```
