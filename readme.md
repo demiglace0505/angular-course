@@ -278,20 +278,20 @@ export class RecipeListComponent implements OnInit {
 The data from our recipes array can be accessed using the ngFor directive and string interpolation. We can also make use of property binding for the src attribute of the img element.
 
 ``` html
-    <a href="#" class="list-group-item clearfix" *ngFor="let recipe of recipes">
-      <div class="pull-left">
-        <h4 class="list-group-item-heading">{{ recipe.name }}</h4>
-        <p class="list-group-item-text">{{ recipe.description }}</p>
-      </div>
-      <div class="span pull-right">
-        <img
-          [src]="recipe.imagePath"
-          alt="{{recipe.name}}"
-          class="img-responsive"
-          style="max-height: 50px"
-        />
-      </div>
-    </a>
+<a href="#" class="list-group-item clearfix" *ngFor="let recipe of recipes">
+  <div class="pull-left">
+    <h4 class="list-group-item-heading">{{ recipe.name }}</h4>
+    <p class="list-group-item-text">{{ recipe.description }}</p>
+  </div>
+  <div class="span pull-right">
+    <img
+      [src]="recipe.imagePath"
+      alt="{{recipe.name}}"
+      class="img-responsive"
+      style="max-height: 50px"
+    />
+  </div>
+</a>
 ```
 
 - - -
@@ -474,18 +474,18 @@ We can use the ng-content directive in a place where we want to render content. 
 
 ``` html
 <app-server-element
-        *ngFor="let serverElement of serverElements"
-        [srvElement]="serverElement"
-      >
-        <p>
-          <strong *ngIf="serverElement.type === 'server'" style="color: red">{{
-            serverElement.content
-          }}</strong>
-          <em *ngIf="serverElement.type === 'blueprint'">{{
-            serverElement.content
-          }}</em>
-        </p>
-      </app-server-element>
+  *ngFor="let serverElement of serverElements"
+  [srvElement]="serverElement"
+>
+  <p>
+    <strong *ngIf="serverElement.type === 'server'" style="color: red">{{
+      serverElement.content
+    }}</strong>
+    <em *ngIf="serverElement.type === 'blueprint'">{{
+      serverElement.content
+    }}</em>
+  </p>
+</app-server-element>
 ```
 
 ### Component Lifecycle
@@ -536,12 +536,12 @@ If a new component is created in Angular, it is instantiated and added to the DO
 We first add click event listeners in our navigation link components
 
 ``` html
-        <li>
-          <a href="#" (click)="onSelect('recipe')">Recipe</a>
-        </li>
-        <li>
-          <a href="#" (click)="onSelect('shopping-list')">Shopping List</a>
-        </li>
+<li>
+  <a href="#" (click)="onSelect('recipe')">Recipe</a>
+</li>
+<li>
+  <a href="#" (click)="onSelect('shopping-list')">Shopping List</a>
+</li>
 ```
 
 We then create the event emitter in our component. We make use of the @Output decorator in order to make this event listenable from outside the header component, in this case, the parent or the app component.
@@ -576,8 +576,8 @@ export class AppComponent {
 We finally make use of **ngIf** directive to conditionally render which page to load depending on the feature selected
 
 ``` html
-      <app-recipes *ngIf="loadedFeature === 'recipe'" ></app-recipes>
-      <app-shopping-list *ngIf="loadedFeature !== 'recipe'" ></app-shopping-list>
+<app-recipes *ngIf="loadedFeature === 'recipe'" ></app-recipes>
+<app-shopping-list *ngIf="loadedFeature !== 'recipe'" ></app-shopping-list>
 ```
 
 ## Project: Passing Data with Property Binding
@@ -665,11 +665,11 @@ export class RecipeItemComponent implements OnInit {
 We then update the template for our recipe-list component to listen to this event. We pass on the current recipe object, which is the *recipeEl*
 
 ``` html
-    <app-recipe-item
-      *ngFor="let recipeEl of recipes"
-      [recipe]="recipeEl"
-      (recipeSelected)="onRecipeSelected(recipeEl)"
-    ></app-recipe-item>
+<app-recipe-item
+*ngFor="let recipeEl of recipes"
+[recipe]="recipeEl"
+(recipeSelected)="onRecipeSelected(recipeEl)"
+></app-recipe-item>
 ```
 
 We then Emit another event. We pass the recipeEl received from the above to the event emitter. This time around, the parent **recipes** component will be the one listening for this event.
@@ -689,31 +689,31 @@ We can set up recipes template. We set the component's *selectedRecipe* property
 We use the ngIf directive together with ng-template to conditionally render *infoText* if selectedRecipe is null, or in other words, no recipe was selected yet. The *recipe* property of the recipe-detail component is bound to selectedRecipe.
 
 ``` html
-    <app-recipe-list
-      (recipeWasSelected)="selectedRecipe = $event"
-    ></app-recipe-list>
+<app-recipe-list
+(recipeWasSelected)="selectedRecipe = $event"
+></app-recipe-list>
 
-    <app-recipe-detail
-      *ngIf="selectedRecipe; else infoText"
-      [recipe]="selectedRecipe"
-    ></app-recipe-detail>
-    <ng-template #infoText>
-      <p>Please select a Recipe</p>
-    </ng-template>
+<app-recipe-detail
+*ngIf="selectedRecipe; else infoText"
+[recipe]="selectedRecipe"
+></app-recipe-detail>
+<ng-template #infoText>
+<p>Please select a Recipe</p>
+</ng-template>
 ```
 
 We can now render the data in our recipe-detail template
 
 ``` html
-    <img
-      [src]="recipe.imagePath"
-      alt="{{ recipe.name }}"
-      class="img-responsive"
-    />
-    ...
-    <h1>{{ recipe.name }}</h1>
-    ...
-    <div class="col-xs-12">{{ recipe.description }}</div>
+<img
+[src]="recipe.imagePath"
+alt="{{ recipe.name }}"
+class="img-responsive"
+/>
+...
+<h1>{{ recipe.name }}</h1>
+...
+<div class="col-xs-12">{{ recipe.description }}</div>
 ```
 
 ## Project: Allowing Addition of Items to the Shopping List
@@ -905,13 +905,13 @@ export class BetterHighlightDirective implements OnInit {
 Specifying our colors in the template:
 
 ``` html
-      <p
-        appBetterHighlight
-        [defaultColor]="'yellow'"
-        [highlightColor]="'orange'"
-      >
-        Style me with better directive!
-      </p>
+<p
+appBetterHighlight
+[defaultColor]="'yellow'"
+[highlightColor]="'orange'"
+>
+Style me with better directive!
+</p>
 ```
 
 Note that if we set an alias that has the same name as our directive, we need to enclose the directive with a square bracket. In the example below, appBetterHighlight.
@@ -925,12 +925,12 @@ export class BetterHighlightDirective implements OnInit {
 ```
 
 ``` html
-      <p
-        [appBetterHighlight]="'orange'"
-        [defaultColor]="'yellow'"
-      >
-        Style me with better directive!
-      </p>
+<p
+[appBetterHighlight]="'orange'"
+[defaultColor]="'yellow'"
+>
+Style me with better directive!
+</p>
 ```
 
 ##### Creating a Structural Directive
@@ -958,17 +958,17 @@ We can now use this directive in our template.
 
 ``` html
 <div *appUnless="onlyOdd">
-          <li
-            class="list-group-item"
-            *ngFor="let even of evenNumbers"
-            [ngClass]="{ even: even % 2 === 0 }"
-            [ngStyle]="{
-              backgroundColor: even % 2 === 0 ? 'orangered' : 'transparent'
-            }"
-          >
-            {{ even }}
-          </li>
-        </div>
+  <li
+    class="list-group-item"
+    *ngFor="let even of evenNumbers"
+    [ngClass]="{ even: even % 2 === 0 }"
+    [ngStyle]="{
+      backgroundColor: even % 2 === 0 ? 'orangered' : 'transparent'
+    }"
+  >
+    {{ even }}
+  </li>
+</div>
 ```
 
 ## Project: Implementing dropdown using directives
@@ -2408,7 +2408,7 @@ There are two approaches to handling forms in Angular: Template-Driven and React
 
 ##### Template-Driven Forms
 
-> Reference activity:
+> Reference activity: [forms-td-start](https://github.com/demiglace0505/angular-course/tree/master/forms-td-start)
 
 We need to make sure that **FormsModule** is incldued as an import in our app.module. With this, Angular automatically generates the javascript representation from our form tags. To add an input as a control, we need to add the directive **ngModel** as a property, and also a *name* property.
 
@@ -2462,25 +2462,25 @@ An easy way to get access to the control created by Angular is to associate a lo
 Using ngModel property binding, we can also select a default value for select tags. We can also use two-way binding to instantly display a value for instance as shown below in the *textarea* element
 
 ``` html
-          <select
-            [ngModel]="defaultQuestion"
-            name="secret"
-            id="secret"
-            class="form-control"
-          >
-            <option value="pet">Your first Pet?</option>
-            <option value="teacher">Your first teacher?</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <textarea
-            class="form-control"
-            name="questionAnser"
-            rows="3"
-            [(ngModel)]="answer"
-          ></textarea>
-        </div>
-        <p>Your reply: {{ answer }}</p>
+  <select
+    [ngModel]="defaultQuestion"
+    name="secret"
+    id="secret"
+    class="form-control"
+  >
+    <option value="pet">Your first Pet?</option>
+    <option value="teacher">Your first teacher?</option>
+  </select>
+</div>
+<div class="form-group">
+  <textarea
+    class="form-control"
+    name="questionAnser"
+    rows="3"
+    [(ngModel)]="answer"
+  ></textarea>
+</div>
+<p>Your reply: {{ answer }}</p>
 ```
 
 We can group form controls together by adding the directive **ngModelGroup** to a parent container. In this example, the output will have a *userData* property inside *value* that contains the email and username input. Aside from this, we can access the javascript representation of the control by using a local reference, in this case, #userData.
@@ -2501,6 +2501,8 @@ We can also patch values into a group of inputs using the **patchValue()** metho
 
 ##### Reactive Forms
 
+> Reference activity: [forms-reactive-start](https://github.com/demiglace0505/angular-course/tree/master/forms-reactive-start)
+
 In Reactive forms, the forms are created programmatically in TypeScript. We first initialize the form by calling a new instance of **FormGroup**. Inside, we add controls to the form using **FormControl**. The first argument for FormControl is the initial state, the second is a validator or array of validators to be applied to this form and the third is for async validators.
 
 ``` typescript
@@ -2520,34 +2522,34 @@ In Reactive forms, the forms are created programmatically in TypeScript. We firs
 To synchronize our forms with the html inputs, we first need to add the directive **formGroup** via property binding to our form tag. We need to import ReactiveFormsModule in our app.module to do so. To connect the controls from our html template, we use the directive **formControlName** which we can use using either string or by property binding to the property we initialized earlier. Submitting the form is identical with template-driven forms, wherein we use the **ngSubmit** directive, but this time, we don't need to get the form using local reference anymore.
 
 ``` html
-      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input
-            formControlName="username"
-            type="text"
-            id="username"
-            class="form-control"
-          />
-        </div>
-        <div class="form-group">
-          <label for="email">email</label>
-          <input
-            [formControlName]="'email'"
-            type="text"
-            id="email"
-            class="form-control"
-          />
-        </div>
-        <div class="radio" *ngFor="let gender of genders">
-          <label>
-            <input formControlName="gender" type="radio" [value]="gender" />{{
-              gender
-            }}
-          </label>
-        </div>
-        <button class="btn btn-primary" type="submit">Submit</button>
-      </form>
+<form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input
+      formControlName="username"
+      type="text"
+      id="username"
+      class="form-control"
+    />
+  </div>
+  <div class="form-group">
+    <label for="email">email</label>
+    <input
+      [formControlName]="'email'"
+      type="text"
+      id="email"
+      class="form-control"
+    />
+  </div>
+  <div class="radio" *ngFor="let gender of genders">
+    <label>
+      <input formControlName="gender" type="radio" [value]="gender" />{{
+        gender
+      }}
+    </label>
+  </div>
+  <button class="btn btn-primary" type="submit">Submit</button>
+</form>
 ```
 
 In the reactive approach, we can add validation using the second argument for FormControl.
@@ -2564,13 +2566,12 @@ To get access to our controls, we can use the FormGroup's **get** method. We pas
 
 ``` html
 <span
-            class="help-block"
-            *ngIf="
-              !signupForm.get('username').valid &&
-              signupForm.get('username').touched
-            "
-            >Please enter a valid username</span
-          >
+  class="help-block"
+  *ngIf="
+    !signupForm.get('username').valid && signupForm.get('username').touched
+  "
+  >Please enter a valid username</span
+>
 ```
 
 We can also group form controls using the **formGroupName** directive. With this, we need to update the structure of the form in the app.component typescript.
@@ -2614,18 +2615,18 @@ For array controls, we can make use of **FormArray**. We then use the FormGroup'
 We then synchronize this to our html template. We can do so using **formArrayName** directive. We then have to make use of property binding to bind **formControlName** to the index.
 
 ``` html
-        <div formArrayName="hobbies">
-          <h4>Your hobbies</h4>
-          <button class="btn btn-default" type="button" (click)="onAddHobby()">
-            Add Hobby
-          </button>
-          <div
-            class="form-group"
-            *ngFor="let hobbyControl of getControls(); let i = index"
-          >
-            <input type="text" class="form-control" [formControlName]="i" />
-          </div>
-        </div>
+<div formArrayName="hobbies">
+  <h4>Your hobbies</h4>
+  <button class="btn btn-default" type="button" (click)="onAddHobby()">
+    Add Hobby
+  </button>
+  <div
+    class="form-group"
+    *ngFor="let hobbyControl of getControls(); let i = index"
+  >
+    <input type="text" class="form-control" [formControlName]="i" />
+  </div>
+</div>
 ```
 
 At this point, we can now find the properties for the hobbies array in:
@@ -2660,16 +2661,12 @@ With reactive forms, we can easily build our own custom validators. A validator 
 The *nameIsForbidden* is our error code. We can make use of the error message in our template.
 
 ``` html
-              <span
-                *ngIf="
-                  signupForm.get('userData.username').errors['nameIsForbidden']
-                "
-                >This username is forbidden</span
-              >
-              <span
-                *ngIf="signupForm.get('userData.username').errors['required']"
-                >This field is required</span
-              >
+<span *ngIf="signupForm.get('userData.username').errors['nameIsForbidden']"
+  >This username is forbidden</span
+>
+<span *ngIf="signupForm.get('userData.username').errors['required']"
+  >This field is required</span
+>
 ```
 
 Asynchronous validators can also be used. This time, it returns a promise which resolves to a key value pair of the error message and boolean. Asynchronous validators are used as the third argument to our FormControl.
