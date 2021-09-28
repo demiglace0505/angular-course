@@ -3066,3 +3066,98 @@ export class RecipeService {
     this.subscription.unsubscribe();
   }
 ```
+
+### Using Pipes
+
+> Reference Activity: pipes-start
+
+Pipes allows us to transform output in our template. There are multiple built-in pipes in [Angular](https://angular.io/api?query=pipe) . We can configure pipes to suit our needs by parameterizing them using the `:` symbol. The _date_ pipe expects a string for its parameter.
+
+```html
+{{ server.started | date: "fullDate" | uppercase }}
+```
+
+The following results to
+
+```
+MONDAY, AUGUST 9, 1920
+```
+
+We can also create our own custom pipes. We create our _name.pipe.ts_ file and implement the transform method. We receive the value to be transformed that is of type any, and then the list of arguments. The **Pipe** decorator is needed when declaring a pipe.
+
+```typescript
+@Pipe({
+  name: "shorten",
+})
+export class ShortenPipe implements PipeTransform {
+  transform(value: any, limit: number) {
+    if (value.length > limit) {
+      return value.substr(0, limit) + " ...";
+    }
+    return value;
+  }
+}
+```
+
+To use a custom pipe, we need to add it to app.module declaration, and then use it like we would a built in pipe.
+
+```html
+{{ server.name | shorten }}
+```
+
+We also created our own filter pipe. This filter takes a second argument for filterString, which in this case is a two-way-bound property _filteredStatus_ from our input element. The third argument propName, is hardcoded to the server property _status_.
+
+```typescript
+  servers = [
+    {
+      ...
+      status: "stable",
+    },
+    ...
+  ];
+  filteredStatus = "";
+```
+
+```typescript
+@Pipe({
+  name: "filter",
+})
+export class FilterPipe implements PipeTransform {
+  transform(value: any, filterString: string, propName: string): any {
+    const resultArr = [];
+    if (value.length === 0 || filterString === "") {
+      return value;
+    }
+
+    for (const item of value) {
+      if (item[propName] === filterString) {
+        resultArr.push(item);
+      }
+    }
+    return resultArr;
+  }
+}
+```
+
+To use the filter, we just chain colons to for our parameters. filteredStatus will get passed into the filterString argument, and status into propName argument. The servers array will thus then get filtered with status according to what we pass into the input field.
+
+```html
+<input type="text" [(ngModel)]="filteredStatus" />
+<li *ngFor="let server of servers | filter: filteredStatus:'status'"></li>
+```
+
+It is important to note that updating arrays or objects doesn't retrigger a pipe. To force a pipe update, we can add the **pure** property in our Pipe decorator and set it to false.
+
+For handling asynchronous data, we can use the built in **async** pipe. This pipe will be useful in http requests.
+
+```html
+<h2>App Status: {{ appStatus | async }}</h2>
+```
+
+```typescript
+appStatus = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("stable");
+  }, 2000);
+});
+```
