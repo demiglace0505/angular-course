@@ -3452,10 +3452,18 @@ To resolve issues with data being accessed before being loaded, we can use a res
 ```typescript
 @Injectable({ providedIn: "root" })
 export class RecipesResolverService implements Resolve<Recipe[]> {
-  constructor(private dataStorageService: DataStorageService) {}
+  constructor(
+    private dataStorageService: DataStorageService,
+    private recipesService: RecipeService
+  ) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.dataStorageService.fetchRecipes();
+    const recipes = this.recipesService.getRecipes();
+    if (recipes.length === 0) {
+      return this.dataStorageService.fetchRecipes();
+    } else {
+      return recipes;
+    }
   }
 }
 ```
@@ -3474,3 +3482,5 @@ And in our app-routing.module, we add these resolver to the following routes
         resolve: [RecipesResolverService],
       },
 ```
+
+What happens essentially is that we run our resolver function which fetches the recipes everytime we visit the route id of a specific recipe.
