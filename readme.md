@@ -15,6 +15,8 @@ Instructor: Max Schwarzmuller
 - [Routing](#routing)
 - [Observables](#observables)
 - [Forms](#forms)
+- [Pipes](#pipes)
+- [Http Requests](#http-requests)
 
 ## Angular Basics
 
@@ -3067,7 +3069,7 @@ export class RecipeService {
   }
 ```
 
-### Using Pipes
+### Pipes
 
 > Reference Activity: pipes-start
 
@@ -3160,4 +3162,224 @@ appStatus = new Promise((resolve, reject) => {
     resolve("stable");
   }, 2000);
 });
+```
+
+### Http Requests
+
+Angular doesn't connect to a database directly, because this is insecure. Instead, we send and receive HTTP requests to and from a server. The server is defined as an API, it can either be REST or GraphQL.
+
+For this course, we used Firebase for the backend solution. We created a Realtime Database from the Firebase console, which we initialize in test mode. We need to import the HttpClientModule from the package @angular/common/http to our app.module. We then inject the HttpClient to our constructor.
+
+```typescript
+  constructor(private http: HttpClient) {}
+```
+
+To send an http POST request to firebase, we can make use of the HttpClient **post()** method. This takes the API url as its first argument witht he second argument being the request body. The Angular HttpClient automatically parses our javascript object into JSON format. Http requests are managed by observables. In this case, we need to subscribe to the observable that wraps our http request. Angular will then automatically extract and give us the response.
+
+```typescript
+  createAndStorePost(title: string, content: string) {
+    const postData: Post = {title: title, content: content}
+    this.http
+    .post<{ name: string }>(
+      "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json",
+      postData
+    )
+    .subscribe((responseData) => {
+      console.log(responseData);
+    });
+  }
+```
+
+The following returns an object with a cryptic name, and inside are the properties we passed in postData.
+
+```
+-Mkliu8WR5rx2yY4-WaY: {content: '123', title: 'test'}
+```
+
+For fetching data, we can make use of the **get()** method. Since we will be receiving a javasciprt object from the get request, we need to use RxJS Operators to transform the response data into a suitable form, in this case an array of Post. The example service below makes use of the **map** operator which gets some data and returns new data that is automatically re-wrapped into an observable. The following code maps the javascript object we received from above into an array, and takes the key (the cryptic value) into an id property. In the angled brackets, we define the response body type to be received. It is important to note that the whole observable gets returned, which we subscribe to in our component.
+
+```typescript
+  fetchPosts() {
+    return this.http
+      .get<{ [key: string]: Post }>(
+        "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json"
+      )
+      .pipe(
+        map((responseData) => {
+          const postsArray: Post[] = [];
+          for (const key in responseData) {
+            if (responseData.hasOwnProperty(key)) {
+              postsArray.push({ ...responseData[key], id: key });
+            }
+          }
+          return postsArray;
+        })
+      );
+  }
+```
+
+Managing the loading status and data can be left in the app component, while the logic itself is outsourced to the service, wherein we return an observable and subscribe to it from within the component.
+
+##### Error handling
+
+There are two ways of handling errors. First is by using the second argument for the subscribe() method.
+
+```typescript
+this.postsService.fetchPosts().subscribe(
+  (posts) => {
+    ...
+  },
+  (error) => {
+    this.error = error.message;
+    console.log(error);
+  }
+);
+```
+
+Another way is by using Subjects. We start by defining the subject, and then passing it into the second argument of our subscribe method and calling **next()**.
+
+```typescript
+  createAndStorePost(title: string, content: string) {
+    const postData: Post = { title: title, content: content };
+    this.http
+      .post<{ name: string }>(
+        "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json",
+        postData
+      )
+      .subscribe(
+        (responseData) => {
+          console.log(responseData);
+        },
+        (error) => {
+          this.error.next(error.message);
+        }
+      );
+  }
+```
+
+From there, we could use subscriptions in places that we are interested in seeing the error message.
+
+```typescript
+  error = null;
+  private errorSub: Subscription;
+  ngOnInit() {
+    this.errorSub = this.postsService.error.subscribe((errMessage) => {
+      this.error = errMessage;
+    });
+  }
+
+  ngOnDestroy() {
+    this.errorSub.unsubscribe();
+  }
+```
+
+There's also the special op'erator **catchError** from rxjs used together with **throwError** that yields a new observable from the errror.
+
+```typescript
+  fetchPosts() {
+    return this.http
+      .get<{ [key: string]: Post }>(
+        "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json"
+      )
+      .pipe(
+        map(...),
+        catchError(errorRes => {
+          //
+          console.log(errorRes)
+          return throwError(errorRes)
+        })
+      );
+  }
+```
+
+##### Configuring Requests
+
+To configure our requests, such as setting up headers, we pass it as an object to the next argument of our method. Here, we pass on custom-header into our request headers, and print=pretty will be included in our URL parameters `https://....firebasedatabase.app/posts.json?print=pretty`
+
+```typescript
+  fetchPosts() {
+    return this.http
+      .get<{ [key: string]: Post }>(
+        "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json",
+        {
+          headers: new HttpHeaders({
+            "custom-header": "hello",
+          }),
+          params: new HttpParams().set("print", "pretty"),
+        }
+      )
+```
+
+For multiple params, we can make use of append() method
+
+```
+    let searchParams= new HttpParams()
+    searchParams = searchParams.append('print', 'pretty')
+    searchParams = searchParams.append('custom', 'key')
+    ...
+    params: searchParams
+```
+
+To be able to access to the other properties of the http response object, we can use the **observe** property. This will allow us access to the headers, status code, body etc.
+
+The **tap()** method allows us to execute code without altering the response
+
+```typescript
+    createAndStorePost(title: string, content: string) {
+    const postData: Post = { title: title, content: content };
+    this.http
+      .post<{ name: string }>(
+        "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json",
+        postData,
+        {
+          observe: "response",
+        }
+      )
+
+  deletePosts() {
+    return this.http
+      .delete(
+        "https://demiglace-angular-default-rtdb.asia-southeast1.firebasedatabase.app/posts.json",
+        {
+          observe: "events",
+        }
+      )
+      .pipe(
+        tap((event) => {
+          console.log(event);
+          
+        })
+      );
+  }
+}
+```
+
+Angular HTTPClient also supports interceptors. We create a new service for this called auth-interceptor.service.ts and in it, we implement the **intercept()** method. This gets two arguments, first is of a request object of type HttpRequest and the second is the next function of type HttpHandler which will forward the request after the interceptor has run its code on the request object. We pass into next.handle the new request object, in this case, all new request headers will have an additional header of `Auth: xyz`.
+
+```typescript
+export class AuthInterceptorService implements HttpInterceptor {
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    const modifiedRequest = req.clone({
+      headers: req.headers.append("Auth", "xyz"),
+    });
+    return next.handle(modifiedRequest);
+  }
+}
+```
+
+We can also use multiple interceptors, this time we add another interceptor for logging. Here we intercept the response using the pipe and tap methods. The order in which we provide them matters because that is the order in which they will fire. The services have to be provided in our app.module. Each object has 3 keys. The first is HTTP_INTERCEPTORS then the second is the class we want to add as an interceptor, in this case the auth-interceptor.service and the last key is for enabling multiple interceptors.
+
+```typescript
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoggingInterceptorService,
+      multi: true,
+    },
+  ],
 ```
