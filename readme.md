@@ -3347,7 +3347,7 @@ The **tap()** method allows us to execute code without altering the response
       .pipe(
         tap((event) => {
           console.log(event);
-          
+
         })
       );
   }
@@ -3382,4 +3382,95 @@ We can also use multiple interceptors, this time we add another interceptor for 
       multi: true,
     },
   ],
+```
+
+### Project: HTTP
+
+For the RecipeBook project, we also used Firebase's Realtime database in test mode. Authentication will be added in the later section. I first added **HttpClientModule** to the app.module imports. We then created a new service data-storage.service. We also inject our recipe service into this service.
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class DataStorageService {
+  constructor(
+    private http: HttpClient,
+    private recipesService: RecipeService
+  ) {}
+}
+```
+
+Firebase provides the **put()** method to overwrite all data in the node. We write the following for saving the recipes array into our back end.
+
+```typescript
+storeRecipes() {
+    const recipes = this.recipesService.getRecipes();
+    this.http
+      .put(
+        'https://demiglace-ng-recipe-book-default-rtdb.asia-southeast1.firebasedatabase.app/recipes.json',
+        recipes
+      )
+      .subscribe((response) => {
+        console.log(response);
+      });
+  }
+```
+
+To fetch our data, we make use of the **get()** method. We are interested in subscribing to this observable's response, wherein we subscribe from data-storage.service. We create a method setRecipes() for overwriting the recipes in our recipe.service.
+
+```typescript
+  setRecipes(recipes: Recipe[]) {
+    this.recipes = recipes;
+    this.recipesChanged.next(this.recipes.slice())
+  }
+```
+
+```typescript
+  fetchRecipes() {
+    return this.http
+      .get<Recipe[]>(
+        'https://demiglace-ng-recipe-book-default-rtdb.asia-southeast1.firebasedatabase.app/recipes.json'
+      )
+      .pipe(
+        map((recipes) => {
+          return recipes.map((recipe) => {
+            return {
+              ...recipe,
+              ingredients: recipe.ingredients ? recipe.ingredients : [],
+            };
+          });
+        }),
+        tap((recipes) => {
+          this.recipesService.setRecipes(recipes);
+        })
+      );
+  }
+```
+
+We also made use of pipe() and map() to transform our response data. This is done so that if ever we receive a recipe with no ingredients added to it, we can add an empty array instead. In here, we return the HttpClient observable, and we subscribe from the header component instead.
+
+To resolve issues with data being accessed before being loaded, we can use a resolver which is code that is run before a route has loaded. We create a new service for this recipes-resolver.service which implements Resolve. We inject our data-storage.service in here because it will be the service that will make the http request.
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class RecipesResolverService implements Resolve<Recipe[]> {
+  constructor(private dataStorageService: DataStorageService) {}
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    return this.dataStorageService.fetchRecipes();
+  }
+}
+```
+
+And in our app-routing.module, we add these resolver to the following routes
+
+```typescript
+      {
+        path: ':id',
+        component: RecipeDetailComponent,
+        resolve: [RecipesResolverService],
+      },
+      {
+        path: ':id/edit',
+        component: RecipeEditComponent,
+        resolve: [RecipesResolverService],
+      },
 ```
