@@ -17,6 +17,7 @@ Instructor: Max Schwarzmuller
 - [Forms](#forms)
 - [Pipes](#pipes)
 - [Http Requests](#http-requests)
+- [Authentication and Route Protection](#authentication-and-route-protection)
 
 ## Angular Basics
 
@@ -3484,3 +3485,418 @@ And in our app-routing.module, we add these resolver to the following routes
 ```
 
 What happens essentially is that we run our resolver function which fetches the recipes everytime we visit the route id of a specific recipe.
+
+### Authentication and Route Protection
+
+When a user enters his credentials, the authentication data is sent and validated in the server. In traditional web pages, where the server renders pages for different URLs, uses sessions. In single page applications we decouple the frontend from the backend. In our case, the pages we visit are handled by angular and its router. Hence we don't need a session because the backend RESTful API is stateless.
+
+In this course, we will be taking a different approach. The server will validate the user email and password and if all data is valid, the server will send the client a JSON web token, which is an encoded string (not encrypted) which can be unpacked by the client. The client then stores the token, and attaches it to any request sent to the server which is then authenticated.
+
+We started by creating our authentication page auth.component.html, which is visible to the public. We then register this new path to our app-routing.module.
+
+```typescript
+  {
+    path: 'auth',
+    component: AuthComponent,
+  },
+```
+
+For this project, we will be using firebase backend for authentication. We set up the rules to our firebase realtime database. Aside from this, we enable e-mail sign in method.
+
+```
+{
+  "rules": {
+    ".read": "auth !=null",
+    ".write": "auth !=null",
+  }
+}
+```
+
+##### Signup and Signin
+
+For signing and signing in of users, we use the [Firebase Auth REST API](https://firebase.google.com/docs/reference/rest/auth#section-create-email-password). For this we create the service auth.service. Here we inject the angular HttpClient. We then send a POST request ot the URL provided by the Firebase Auth REST API documentation. The required payloads for the request body are email, password, and returnSecureToken. We consolidate our authentication response to an interface object, which expects the following properties: idToken, email, refreshToken, expiresIn, localId.
+
+```typescript
+export interface AuthResponseData {
+  idToken: string;
+  email: string;
+  refreshToken: string;
+  expiresIn: string;
+  localId: string;
+  registered?: boolean;
+}
+
+@Injectable({
+  providedIn: "root",
+})
+export class AuthService {
+  constructor(private http: HttpClient) {}
+
+  signup(email: string, password: string) {
+    return this.http
+      .post<AuthResponseData>(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]',
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(catchError(this.handleError));
+  }
+
+  login(email: string, password: string) {
+    return this.http
+      .post<AuthResponseData>(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]',
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(catchError(this.handleError));
+  }
+
+  private handleError(errorRes: HttpErrorResponse) {
+    let errorMessage = 'An unknown error occured!';
+    if (!errorRes.error || !errorRes.error.error) {
+      return throwError(errorMessage);
+    }
+    switch (errorRes.error.error.message) {
+      case 'EMAIL_EXISTS':
+        errorMessage = 'This email exists already!';
+        break;
+      case 'EMAIL_NOT_FOUND':
+        errorMessage = 'This email does not exist.'
+        break;
+      case 'INVALID_PASSWORD':
+        errorMessage = 'This password is not correct.'
+        break;
+    }
+    return throwError(errorMessage);
+  }
+```
+
+We can send the signup request through our auth.component. We subscribe to the observable that will be returned by the above signup method. For error handling, the logic for error handling is contained in the auth.service and we make use of the **catchError** rxjs operator alongside with the **throwError** function, which will create a new observable that wraps the error.
+
+```typescript
+  onSubmit(form: NgForm) {
+    if (!form.valid) {
+      return;
+    }
+    const email = form.value.email;
+    const password = form.value.password;
+
+    this.isLoading = true;
+
+    let authObservable: Observable<AuthResponseData>;
+
+    if (this.isLoginMode) {
+      authObservable = this.authService.login(email, password);
+    } else {
+      authObservable = this.authService.signup(email, password);
+    }
+
+    authObservable.subscribe(
+      (response) => {
+        console.log(response);
+        this.isLoading = false;
+      },
+      (errorResponse) => {
+        this.error = errorResponse;
+        this.isLoading = false;
+      }
+    );
+
+    form.reset();
+  }
+```
+
+##### Creating and Storing User Data
+
+We first created a user.model. We then create a user property which is an rxjs subject in our auth.service. In our signup and login methods, We tap into the observable to perform some action without changing the response, in this case we set _user_ into a new User object using the prioperties received from pipe. We call the subject **next()** method on our _user_ property.
+
+```typescript
+export class User {
+  constructor(
+    public email: string,
+    public id: string,
+    private _token: string,
+    private _tokenExpirationDate: Date
+  ) {}
+
+  get token() {
+    if (!this._tokenExpirationDate || new Date() > this._tokenExpirationDate) {
+      return null;
+    }
+    return this._token;
+  }
+}
+```
+
+```typescript
+export class AuthService {
+  constructor(private http: HttpClient) {}
+  user = new Subject<User>();
+
+  signup(email: string, password: string) {
+    //...
+      .pipe(
+        catchError(this.handleError),
+        tap((response) => {
+          this.handleAuthentication(response.email, response.localId, response.idToken, +response.expiresIn)
+        })
+      );
+  }
+
+  private handleAuthentication(email: string, userId:string, token: string, expiresIn: number) {
+    const expirationDate = new Date(
+      new Date().getTime() + expiresIn * 1000
+    );
+    const user = new User(
+      email,
+      userId,
+      token,
+      expirationDate
+    );
+    this.user.next(user)
+  }
+```
+
+We then need to get the authentication status of a user to our header component. This is done by checking if a user has a valid token. Since we use a subject in our auth.service to manage our user, this will inform all places in our application whenever there are changes to our user. We subscribe our header component to our user through ngOnInit().
+
+```typescript
+  ngOnInit() {
+    this.userSub = this.authService.user.subscribe((user) => {
+      this.isAuthenticated = !user ? false : true;
+    });
+
+      ngOnDestroy() {
+    this.userSub.unsubscribe();
+  }
+  }
+```
+
+##### Adding Tokens to Outgoing Requests
+
+For on-demand fetching of user data, we make use of rxjs **BehaviorSubject**. The difference of this compared to Subject is that BehaviorSubject gives subscribers immediate access to the previously emitted values. This is initialized as null.
+
+```typescript
+user = new BehaviorSubject<User>(null);
+```
+
+We then fetch this data from data-storage.service. For this we make use of rxjs operator **take**. In this case, we only take one value from the observable, and then unsubscribe after. We make use of **exhaustMap**, which waits for the first observable to complete, in this case, the user observable, then afterwards, the data is extracted from the previous observable in which we return a new observable that will replace the previous observable in the chain.
+
+```typescript
+  fetchRecipes() {
+    return this.authService.user.pipe(
+      take(1),
+      exhaustMap((user) => {
+        console.log(user);
+        return this.http.get<Recipe[]>(
+          'https://demiglace-ng-recipe-book-default-rtdb.asia-southeast1.firebasedatabase.app/recipes.json',
+          {
+            params: new HttpParams().set('auth', user.token),
+          }
+        );
+      }),
+      map((recipes) => {
+        return recipes.map((recipe) => {
+          return {
+            ...recipe,
+            ingredients: recipe.ingredients ? recipe.ingredients : [],
+          };
+        });
+      }),
+      tap((recipes) => {
+        this.recipesService.setRecipes(recipes);
+      })
+    );
+  }
+```
+
+We can add the tokens in the Firebase realtime database API through query parameters, as shown above, or using interceptors as shown below.
+
+```typescript
+@Injectable()
+export class AuthInterceptorService implements HttpInterceptor {
+  constructor(private authservice: AuthService) {}
+
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    this.authservice.user.subscribe();
+
+    return this.authservice.user.pipe(
+      take(1),
+      exhaustMap((user) => {
+        const modifiedReq = req.clone({
+          params: new HttpParams().set("auth", user.token),
+        });
+        return next.handle(modifiedReq);
+      })
+    );
+  }
+}
+```
+
+The fetchRecipes() method can then be simplified
+
+```typescript
+  fetchRecipes() {
+    return this.http
+      .get<Recipe[]>(
+        'https://demiglace-ng-recipe-book-default-rtdb.asia-southeast1.firebasedatabase.app/recipes.json'
+      )
+      .pipe(
+        map((recipes) => {
+          return recipes.map((recipe) => {
+            return {
+              ...recipe,
+              ingredients: recipe.ingredients ? recipe.ingredients : [],
+            };
+          });
+        }),
+        tap((recipes) => {
+          this.recipesService.setRecipes(recipes);
+        })
+      );
+  }
+```
+
+We add the interceptors to our app.module
+
+```typescript
+  providers: [
+    ShoppingListService,
+    RecipeService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
+  ],
+```
+
+To enable auto-login, we must store the token in a persistent storage. We can store the token in the localStorage.
+
+```typescript
+localStorage.setItem("userData", JSON.stringify(user));
+```
+
+To retrieve the stored token, we create a new method autoLogin()
+
+```typescript
+  autoLogin() {
+    const userData: {
+      email: string;
+      id: string;
+      _token: string;
+      _tokenExpirationDate: Date;
+    } = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) {
+      return;
+    }
+
+    const loadedUser = new User(
+      userData.email,
+      userData.id,
+      userData._token,
+      new Date(userData._tokenExpirationDate)
+    );
+
+    // check if valid token
+    if (loadedUser.token) {
+      this.user.next(loadedUser);
+    }
+  }
+```
+
+We also need to implement the auto-logout since our tokens will expire eventually.
+
+```typescript
+  logout() {
+    this.user.next(null);
+    this.router.navigate(['/auth']);
+    localStorage.removeItem('userData');
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer)
+    }
+    this.tokenExpirationTimer = null
+  }
+
+  autoLogout(expirationDuration: number) {
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.logout()
+    }, expirationDuration)
+  }
+```
+
+Thus, we need to update our handleAuthentication method accordingly to call autoLogout
+
+```typescript
+  private handleAuthentication(
+    email: string,
+    userId: string,
+    token: string,
+    expiresIn: number
+  ) {
+    const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+    const user = new User(email, userId, token, expirationDate);
+    this.user.next(user);
+    this.autoLogout(expiresIn * 1000);
+    localStorage.setItem('userData', JSON.stringify(user));
+  }
+```
+
+And also to our autoLogin method
+
+```typescript
+  autoLogin() {
+    const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime()
+    this.autoLogout(expirationDuration)
+  }
+```
+
+##### Auth Guard
+
+Route guards allows us to run logic right before a route is loaded. Using route guards, we can prevent unauthenticated users from accessing protected routes. We create a new file auth.guard and export a class that implements the interface **CanActivate()**
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    router: RouterStateSnapshot
+  ):
+    | boolean
+    | UrlTree
+    | Promise<boolean | UrlTree>
+    | Observable<boolean | UrlTree> {
+    return this.authService.user.pipe(
+      take(1),
+      map((user) => {
+        // const isAuth = !!user
+        const isAuth = user ? true : false;
+        if (isAuth) {
+          return true;
+        }
+        return this.router.createUrlTree(['/auth']);
+      })
+    );
+  }
+}
+
+```
+
+We then add **canActivate** to our app-routing, specifically for the /recipes route. We can redirect the user by returning a UrlTree to /auth in our canActivate() method.
+
+```typescript
+  {
+    path: 'recipes',
+    component: RecipesComponent,
+    canActivate: [AuthGuard],
+    //...
+  }
+```
