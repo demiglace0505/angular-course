@@ -18,6 +18,7 @@ Instructor: Max Schwarzmuller
 - [Pipes](#pipes)
 - [Http Requests](#http-requests)
 - [Authentication and Route Protection](#authentication-and-route-protection)
+- [Dynamic Components](#dynamic-components)
 
 ## Angular Basics
 
@@ -3862,7 +3863,7 @@ And also to our autoLogin method
 Route guards allows us to run logic right before a route is loaded. Using route guards, we can prevent unauthenticated users from accessing protected routes. We create a new file auth.guard and export a class that implements the interface **CanActivate()**
 
 ```typescript
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -3882,12 +3883,11 @@ export class AuthGuard implements CanActivate {
         if (isAuth) {
           return true;
         }
-        return this.router.createUrlTree(['/auth']);
+        return this.router.createUrlTree(["/auth"]);
       })
     );
   }
 }
-
 ```
 
 We then add **canActivate** to our app-routing, specifically for the /recipes route. We can redirect the user by returning a UrlTree to /auth in our canActivate() method.
@@ -3900,3 +3900,97 @@ We then add **canActivate** to our app-routing, specifically for the /recipes ro
     //...
   }
 ```
+
+### Dynamic Components
+
+Dynamic Components are components that are created dynamically during runtime. These are loaded programatically. There are two ways of creating components dynamically, first is with ngIf and the other is by using Dynamic Component Loader. wherein we imperatively create and add a component to the DOM via code.
+
+#### Using ngIf
+
+We created an alert modal component alert.component for this purposes. The template for this alert is as follows:
+
+```html
+<div class="backdrop"></div>
+<div class="alert-box">
+  <p>{{ message }}</p>
+  <div class="alert-box-actions">
+    <button class="btn btn-primary">Close</button>
+  </div>
+</div>
+```
+
+We use the Input decorator to allow the parent component to update the message property of the alert.component.
+
+```typescript
+export class AlertComponent {
+  @Input() message: string;
+  @Output() close = new EventEmitter<void>();
+
+  onClose() {
+    this.close.emit();
+  }
+}
+```
+
+To use this, in our auth.component template, we use property binding to bind the message property into error. We also conditionally render this modal only when error exists.
+
+```html
+<app-alert
+  [message]="error"
+  *ngIf="error"
+  (close)="onHandleError()"
+></app-alert>
+```
+
+The modal can be closed by emitting an event from alert.component when the close button or outside is clicked. The onHandleError() of the auth.component will simply set error into null, hence making the modal disappear.
+
+#### Programatic way
+
+In auth.component, we create a new private method **showErrorAlert()**. We need to manually instantiate a component from within this method using the Angular component factory. We do so by importing the alert component and injecting the **ComponentFactoryResolver**. We pass into this resolver the type of object that we need, in this case, the AlertComponent. This method will return a component factory.
+
+```typescript
+  private showErrorAlert(message: string) {
+    const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent)
+  }
+```
+
+We then need a place to attach this component in our DOM. We need a view container ref for this. For this, we create a helper directive _placeholder.directive.ts_. This directive injects the view container ref, which allows us to get information about the place where we use this directive.
+
+```typescript
+export class PlaceholderDirective {
+  constructor(public viewContainerRef: ViewContainerRef) {}
+}
+```
+
+We can now add the modal to our template. The ng-template structural directive is perfect for the placeholder since it will not be rendered into the DOM.
+
+```html
+<ng-template appPlaceholder></ng-template>
+```
+
+We store the directive that we used in the template into ViewChild alertHost
+
+```typescript
+  @ViewChild(PlaceholderDirective, { static: false }) alertHost: PlaceholderDirective;
+```
+
+Now we get an access to the view container reference of the host, which we store in the variable hostViewContainerRef. We then call the **createComponent()** method and pass the factory into it.
+
+```typescript
+  private showErrorAlert(message: string) {
+    const alertCmpFactory =
+      this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
+    const hostViewContainerRef = this.alertHost.viewContainerRef;
+    // console.log(hostViewContainerRef);
+    hostViewContainerRef.clear();
+
+    const componentRef = hostViewContainerRef.createComponent(alertCmpFactory);
+    componentRef.instance.message = message;
+    this.closeSub = componentRef.instance.close.subscribe(() => {
+      this.closeSub.unsubscribe();
+      hostViewContainerRef.clear()
+    });
+  }
+```
+
+To be able to pass data into the component, in this case, to display the error message and to be able to close the modal, we store the component reference into a variable and then use the **instance** property to access the component instance that was created. This instance should have the *message* and *close* properties from alert.component.
