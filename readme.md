@@ -19,6 +19,7 @@ Instructor: Max Schwarzmuller
 - [Http Requests](#http-requests)
 - [Authentication and Route Protection](#authentication-and-route-protection)
 - [Dynamic Components](#dynamic-components)
+- [Angular Modules](#angular-modules)
 
 ## Angular Basics
 
@@ -3994,3 +3995,102 @@ Now we get an access to the view container reference of the host, which we store
 ```
 
 To be able to pass data into the component, in this case, to display the error message and to be able to close the modal, we store the component reference into a variable and then use the **instance** property to access the component instance that was created. This instance should have the *message* and *close* properties from alert.component.
+
+
+### Angular Modules
+
+> Reference activity: 
+
+Modules are ways of bundling angular building blocks such as components, directives, services, pipes etc. together. An app requires at least one module, the AppModule, but may be split into multiple modules.
+
+In our app, we have three main feature areas: recipes, shopping list, and auth.
+
+We create a new *recipe.modules.ts* file, wherein we transfer the declarations from app.module. We also use the same declarations in the exports array, in order to use them in any module that imports RecipeModule.
+
+```typescript
+@NgModule({
+  declarations: [
+    RecipesComponent,
+    RecipeListComponent,
+    RecipeDetailComponent,
+    RecipeItemComponent,
+    RecipeStartComponent,
+    RecipeEditComponent,
+  ],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule],
+  exports: [
+    RecipesComponent,
+    RecipeListComponent,
+    RecipeDetailComponent,
+    RecipeItemComponent,
+    RecipeStartComponent,
+    RecipeEditComponent,
+  ],
+})
+export class RecipesModule {}
+```
+
+It is important to note that we still need to import RouterModule, CommonModule and ReactiveFormsModule. We then import this into outo our app.module.
+
+```typescript
+  imports: [
+    ...
+    RecipesModule
+  ],
+```
+
+We can also outsource the recipes routing configuration away from the app-routing module into the recipes module. To do so, we use **forChild()**. We first create a new app-routing.module, which will contain the route setup.
+
+```typescript
+const routes: Routes = [
+  {
+    path: 'recipes',
+    component: RecipesComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        component: RecipeStartComponent,
+      },
+      {
+        path: 'new',
+        component: RecipeEditComponent,
+      },
+      {
+        path: ':id',
+        component: RecipeDetailComponent,
+        resolve: [RecipesResolverService],
+      },
+      {
+        path: ':id/edit',
+        component: RecipeEditComponent,
+        resolve: [RecipesResolverService],
+      },
+    ],
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class RecipesRoutingModule {}
+```
+
+Likewise, we can bundle up our shopping-list related components into a new shopping-list.module.
+
+```typescript
+@NgModule({
+  declarations: [ShoppingListComponent, ShoppingEditComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule.forChild([
+      {
+        path: 'shopping-list',
+        component: ShoppingListComponent,
+      },
+    ]),
+  ],
+})
+```
