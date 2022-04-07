@@ -20,6 +20,7 @@ Instructor: Max Schwarzmuller
 - [Authentication and Route Protection](#authentication-and-route-protection)
 - [Dynamic Components](#dynamic-components)
 - [Angular Modules](#angular-modules)
+- [Deploying Angular Apps](#deploying-angular-apps)
 
 ## Angular Basics
 
@@ -3518,6 +3519,11 @@ For this project, we will be using firebase backend for authentication. We set u
 
 For signing and signing in of users, we use the [Firebase Auth REST API](https://firebase.google.com/docs/reference/rest/auth#section-create-email-password). For this we create the service auth.service. Here we inject the angular HttpClient. We then send a POST request ot the URL provided by the Firebase Auth REST API documentation. The required payloads for the request body are email, password, and returnSecureToken. We consolidate our authentication response to an interface object, which expects the following properties: idToken, email, refreshToken, expiresIn, localId.
 
+```
+email: doge@doge.com
+pass: doge123
+```
+
 ```typescript
 export interface AuthResponseData {
   idToken: string;
@@ -3994,18 +4000,17 @@ Now we get an access to the view container reference of the host, which we store
   }
 ```
 
-To be able to pass data into the component, in this case, to display the error message and to be able to close the modal, we store the component reference into a variable and then use the **instance** property to access the component instance that was created. This instance should have the *message* and *close* properties from alert.component.
-
+To be able to pass data into the component, in this case, to display the error message and to be able to close the modal, we store the component reference into a variable and then use the **instance** property to access the component instance that was created. This instance should have the _message_ and _close_ properties from alert.component.
 
 ### Angular Modules
 
-> Reference activity: 
+> Reference activity:
 
-Modules are ways of bundling angular building blocks such as components, directives, services, pipes etc. together. An app requires at least one module, the AppModule, but may be split into multiple modules.
+Modules are ways of bundling angular building blocks such as components, directives, services, pipes etc. together. Every angular app requires at least one module, the AppModule, but may be split into multiple modules. Angular analyzes NgModules to understand our application and its features. Core angular features such as FormsModule are included in Angular modules to load them only when needed.
 
 In our app, we have three main feature areas: recipes, shopping list, and auth.
 
-We create a new *recipe.modules.ts* file, wherein we transfer the declarations from app.module. We also use the same declarations in the exports array, in order to use them in any module that imports RecipeModule.
+We create a new _recipe.modules.ts_ file, wherein we transfer the declarations from app.module. We also use the same declarations in the exports array, in order to use them in any module that imports RecipeModule. **declarations** is the array of all the components, directives and custom pipes we use in our application. **imports** is the array that allows us to import other modules into our module. It is important for splitting our application into multiple modules. To use our Recipe Module, we need to add the declared components into the **exports** array.
 
 ```typescript
 @NgModule({
@@ -4044,25 +4049,25 @@ We can also outsource the recipes routing configuration away from the app-routin
 ```typescript
 const routes: Routes = [
   {
-    path: 'recipes',
+    path: "recipes",
     component: RecipesComponent,
     canActivate: [AuthGuard],
     children: [
       {
-        path: '',
+        path: "",
         component: RecipeStartComponent,
       },
       {
-        path: 'new',
+        path: "new",
         component: RecipeEditComponent,
       },
       {
-        path: ':id',
+        path: ":id",
         component: RecipeDetailComponent,
         resolve: [RecipesResolverService],
       },
       {
-        path: ':id/edit',
+        path: ":id/edit",
         component: RecipeEditComponent,
         resolve: [RecipesResolverService],
       },
@@ -4094,3 +4099,230 @@ Likewise, we can bundle up our shopping-list related components into a new shopp
   ],
 })
 ```
+
+Afterwards, we need to include the ShoppingListModule as in import to our App Module.
+
+```typescript
+@NgModule({
+  ...
+  imports: [
+    ...
+    ShoppingListModule,
+  ],
+})
+export class AppModule {}
+```
+
+#### Shared Modules
+
+In our app, we have the /shared directory which contains shared components and directives. We can put these into a Shared Module. We created a new shared.module.ts file. Here we declare and import and export anything that might be used by other modules.
+
+```typescript
+@NgModule({
+  declarations: [
+    AlertComponent,
+    LoadingSpinnerComponent,
+    PlaceholderDirective,
+    DropdownDirective,
+  ],
+  imports: [CommonModule],
+  exports: [
+    AlertComponent,
+    LoadingSpinnerComponent,
+    PlaceholderDirective,
+    DropdownDirective,
+    CommonModule,
+  ],
+})
+export class SharedModule {}
+```
+
+It is important to note that we can only declare components, directives and pipes once. We can import a module into multiple modules though. Hence our app.module would only have the following declarations at this point.
+
+```typescript
+@NgModule({
+  declarations: [AppComponent, HeaderComponent, AuthComponent],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    AppRoutingModule,
+    RecipesModule,
+    ShoppingListModule,
+    SharedModule,
+  ],
+  providers: [
+    ShoppingListService,
+    RecipeService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
+  ],
+  bootstrap: [AppComponent],
+  entryComponents: [AlertComponent],
+})
+export class AppModule {}
+```
+
+#### Core Module
+
+The Core Module is used to make the App Module leaner. We can use the Core Module to move services out of the App Module and add in the Core Module itself in the App Module.
+
+```typescript
+@NgModule({
+  providers: [
+    ShoppingListService,
+    RecipeService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
+  ],
+})
+```
+
+And our app module can be slimmed down
+
+```typescript
+@NgModule({
+  declarations: [AppComponent, HeaderComponent, AuthComponent],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    AppRoutingModule,
+    RecipesModule,
+    ShoppingListModule,
+    SharedModule,
+    CoreModule,
+  ],
+  bootstrap: [AppComponent],
+  entryComponents: [AlertComponent],
+})
+```
+
+#### Auth Module
+
+We can also create a separate module for our Auth component. In here, we can also define the routing path for /auth and offload it from our app-routing.module.
+
+```typescript
+@NgModule({
+  declarations: [AuthComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule.forChild([
+      {
+        path: 'auth',
+        component: AuthComponent,
+      },
+    ]),
+  ],
+})
+```
+
+### Lazy Loading
+
+To use Lazy Loading, we need to use multiple feature models as a prerequisite. With Lazy Loading, we don't load all modules at the same time. This results in a faster startup. We can start implementing lazy loading with the recipes module since we normally don't see it when a user is unauthenticated. For lazy loading to work, our feature module needs to bring its own Routes. In the RecipesRoutingModule, we remove the path to _recipes_ and transfer it to AppRoutingModule with a new property **loadChildren**
+
+```typescript
+// recipes-routing.module.ts
+const routes: Routes = [
+  {
+    path: "",
+    component: RecipesComponent,
+    canActivate: [AuthGuard],
+    children: [
+      ...
+    ],
+  },
+];
+
+// app-routing.module.ts
+const appRoutes: Routes = [
+  {
+    path: '',
+    redirectTo: '/recipes',
+    pathMatch: 'full',
+  },
+  {
+    path: 'recipes',
+    loadChildren: () =>
+      import('./recipes/recipes.module').then((m) => m.RecipesModule),
+  },
+];
+```
+
+#### Preloading Lazy Loaded Code
+
+We can also preload lazy loaded modules using our root app-routing module.
+
+```typescript
+@NgModule({
+  imports: [
+    RouterModule.forRoot(appRoutes, { preloadingStrategy: PreloadAllModules }),
+  ],
+  exports: [RouterModule],
+})
+```
+
+### Services and Modules
+
+We can also provide services to providers of lazy loaded modules. When we provide a service in the AppModule, the services will be available app-wide. When the service is provided in a Component, then that service will only be available in the component tree. For eager-loaded modules, everything is bundled together initially and therefore every services provided will be available app-wide similar to adding a service in AppModule. For Lazy-loaded modules, the service is only available at the loaded module.
+
+## Deploying Angular Apps
+
+In our project directory, we can find the /environments directory which contains an environment.ts file wherein we can define environment constants.
+
+```typescript
+export const environment = {
+  production: false,
+  firebaseAPIKey: "AIzaSyDoJKdpnP5bGtMRCpDY1KCjXCj6MgNiS1E",
+};
+```
+
+We can import these environment variables into our project using
+
+```typescript
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  constructor(private http: HttpClient, private router: Router) {}
+  user = new BehaviorSubject<User>(null);
+  private tokenExpirationTimer: any;
+
+  signup(email: string, password: string) {
+    return this.http
+      .post<AuthResponseData>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(
+        catchError(this.handleError),
+        tap((response) => {
+          this.handleAuthentication(
+            response.email,
+            response.localId,
+            response.idToken,
+            +response.expiresIn
+          );
+        })
+      );
+  }
+```
+
+#### Building the Project
+
+To build the project, we can run `ng build --prod`. This compiles the typescript into javascript and compiles templates into javascript as well. This generates a `dist` folder which contains the project assets. 
