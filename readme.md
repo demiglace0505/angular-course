@@ -21,6 +21,7 @@ Instructor: Max Schwarzmuller
 - [Dynamic Components](#dynamic-components)
 - [Angular Modules](#angular-modules)
 - [Deploying Angular Apps](#deploying-angular-apps)
+- [NgRx](#ngrx)
 
 ## Angular Basics
 
@@ -4325,4 +4326,482 @@ export class AuthService {
 
 #### Building the Project
 
-To build the project, we can run `ng build --prod`. This compiles the typescript into javascript and compiles templates into javascript as well. This generates a `dist` folder which contains the project assets. 
+To build the project, we can run `ng build --prod`. This compiles the typescript into javascript and compiles templates into javascript as well. This generates a `dist` folder which contains the project assets.
+
+#### Deployment
+
+For deploying our static web app, we can use Google Firebase. We first need to install the firebase cli `npm install -g firebase-tools`. Afterwards we do `firebase login` into our account then `firebase init` to connect our project into our firebase project. For the public directory, we use `dist/RecipeBook`. After going through the wizard, we can run `firebase deploy`
+
+## NgRx
+
+RxJS allows us to create a streamlined state management experience. With **Subjects** we can react to user or app events by using **Observables** and **Listen** to state changes and update the ui. The problems with RxJS is that there is no enforced pattern. This is where Redux comes in. NgRx is angular's implementation of redux and uses RxJS under the hood. NgRx also gives us tools to make working with Side Effects such as sending http requests and asynchronous code easier.
+
+### Redux
+
+Redux is a state management pattern and library that helps implement this pattern to any application. In Redux, we have one central **Store** that holds the application state. The different parts of the application such as services and components receive the state from this store which will serve as the single source of truth for the entire application state. We dispatch **Actions** when we want to modify state. An action is a javascript object with an identifier to identify the kind of action and a payload. The action doesn't interact the store directly, but does so through **Reducers** which gets the current state and an action to update the state in an immutable way. The reducer returns a new copy of state which is forwarded to the application store overriding the old state.
+
+#### Reducer
+
+We need to install NgRx into our project `npm install --save @ngrx/store`. We then start with implementing a reducer. Our reducer function receives two arguments: the **state**, which is the current state and the **action** which is what will trigger the reducer. We can also define the initial state in our reducer file. At this point, we are adding the entire action object into our ingredients array, which is not the optimal way to add an ingredient.
+
+```typescript
+// shopping-list.reducer.ts
+import { Ingredient } from "../../shared/ingredient.model";
+import * as ShoppingListActions from "./shopping-list.actions";
+
+const initialState = {
+  ingredients: [new Ingredient("apples", 5), new Ingredient("oranges", 2)],
+};
+
+export function shoppingListReducer(
+  state = initialState,
+  action: ShoppingListActions.AddIngredient
+) {
+  switch (action.type) {
+    case ShoppingListActions.ADD_INGREDIENT:
+      return {
+        ...state,
+        ingredients: [...state.ingredients, action.payload],
+      };
+    default:
+      return state;
+  }
+}
+```
+
+#### Action
+
+We can standardize the action creation process by creating a constant with the same name as our action type so that we can import it into our other files instead of manually defining a string as the case.
+
+```typescript
+// shopping-list.actions.ts
+import { Action } from "@ngrx/store";
+import { Ingredient } from "src/app/shared/ingredient.model";
+
+export const ADD_INGREDIENT = "ADD_INGREDIENT";
+
+export class AddIngredient implements Action {
+  readonly type = ADD_INGREDIENT;
+  constructor(public payload: Ingredient) {}
+}
+```
+
+#### Setting up Store
+
+To add our application store, we import **StoreModule** from @ngrx/store wherein we use the **forRoot()** method to pass an action reducer map, a javascript object where we can define any identifier of our choice and the reducer that belongs in that identifier, in this case, shoppingListReducer. The shoppingListReducer function will then be assigned to the _shoppingList_ key. NgRx will then take this reducer into account and set up an application store for us.
+
+```typescript
+import { StoreModule } from "@ngrx/store";
+import { shoppingListReducer } from "./shopping-list/store/shopping-list.reducer";
+
+@NgModule({
+  declarations: [AppComponent, HeaderComponent],
+  imports: [...StoreModule.forRoot({ shoppingList: shoppingListReducer })],
+  bootstrap: [AppComponent],
+  entryComponents: [AlertComponent],
+})
+export class AppModule {}
+```
+
+#### Selecting State
+
+To use NgRx, we need to inject **Store** from @ngrx/store into our ShoppingListComponent. Here we must define the _shoppingList_ area with an object that has an ingredients key (according to our store). At this point, we can now start using our store in the component. The **select()** method selects a slice of our state which is identified as a string. This method returns an observable so we need to update our ingredients field to expect an Observable that resolves into an array of Ingredient.
+
+```typescript
+export class ShoppingListComponent implements OnInit, OnDestroy {
+  ingredients: Observable<{ ingredients: Ingredient[] }>;
+
+  constructor(
+    private store: Store<{ shoppingList: { ingredients: Ingredient[] } }>
+  ) {}
+
+  ngOnInit(): void {
+    this.ingredients = this.store.select("shoppingList");
+  }
+}
+```
+
+#### Dispatching Actions
+
+With the help of the Store service from @ngrx/store, we can dispatch actions using the **store.dispatch()** method.
+
+```typescript
+  onSubmit(form: NgForm) {
+    const value = form.value;
+    const newIngredient = new Ingredient(value.name, value.amount);
+    if (this.editMode) {
+      this.slService.updateIngredient(this.editedItemIndex, newIngredient);
+    } else {
+      this.store.dispatch(new ShoppingListActions.AddIngredient(newIngredient));
+    }
+    this.editMode = false;
+    form.reset();
+  }
+```
+
+#### Multiple Actions
+
+We can also add other actions for adding multiple actions. This time, we add an action for adding multiple ingredients. We also define a type ShoppingListActions which is a union of all our actions that we can use as the type of the action in our reducer function.
+
+```typescript
+export const ADD_INGREDIENTS = "ADD_INGREDIENTS";
+
+export class AddIngredients implements Action {
+  readonly type = ADD_INGREDIENTS;
+  constructor(public payload: Ingredient[]) {}
+}
+
+export type ShoppingListActions = AddIngredient | AddIngredients;
+```
+
+```typescript
+export function shoppingListReducer(
+  state = initialState,
+  action: ShoppingListActions.ShoppingListActions
+) {
+  switch (action.type) {
+    case ShoppingListActions.ADD_INGREDIENT:
+      return {
+        ...state,
+        ingredients: [...state.ingredients, action.payload],
+      };
+    case ShoppingListActions.ADD_INGREDIENTS:
+      return {
+        ...state,
+        ingredients: [...state.ingredients, ...action.payload],
+      };
+    default:
+      return state;
+  }
+}
+```
+
+We now use our action in our RecipeService.
+
+```typescript
+  addIngredientsToShoppingList(ingredients: Ingredient[]) {
+    // this.slService.addMultipleIngredients(ingredients);
+    this.store.dispatch(new ShoppingListActions.AddIngredients(ingredients));
+  }
+```
+
+Likewise we can add the update and delete actions
+
+```typescript
+export const UPDATE_INGREDIENT = "UPDATE_INGREDIENT";
+export const DELETE_INGREDIENT = "DELETE_INGREDIENT";
+
+export class UpdateIngredient implements Action {
+  readonly type = UPDATE_INGREDIENT;
+  constructor(public payload: { index: number; ingredient: Ingredient }) {}
+}
+
+export class DeleteIngredient implements Action {
+  readonly type = DELETE_INGREDIENT;
+  constructor(public payload: number) {}
+}
+
+export type ShoppingListActions =
+  | AddIngredient
+  | AddIngredients
+  | UpdateIngredient
+  | DeleteIngredient;
+```
+
+And on the reducer we add the cases for updating and deleting ingredient.
+
+```typescript
+    case ShoppingListActions.UPDATE_INGREDIENT:
+      const ingredient = state.ingredients[action.payload.index];
+      // create the new ingredient object
+      const updatedIngredient = {
+        ...ingredient,
+        ...action.payload.ingredient,
+      };
+
+      // make copy of ingredients arraay
+      const updatedIngredients = [...state.ingredients];
+      // replace old ingredient object with the new ingredient
+      updatedIngredients[action.payload.index] = updatedIngredient;
+
+      return {
+        ...state,
+        ingredients: updatedIngredients,
+      };
+    case ShoppingListActions.DELETE_INGREDIENT:
+      return {
+        ...state,
+        ingredients: state.ingredients.filter((ig, igIndex) => {
+          return igIndex !== action.payload;
+        }),
+      };
+```
+
+We now use them in the respective methods in the ShoppingEditComponent
+
+```typescript
+  onSubmit(form: NgForm) {
+    const value = form.value;
+    const newIngredient = new Ingredient(value.name, value.amount);
+    if (this.editMode) {
+      // this.slService.updateIngredient(this.editedItemIndex, newIngredient);
+      this.store.dispatch(
+        new ShoppingListActions.UpdateIngredient({
+          index: this.editedItemIndex,
+          ingredient: newIngredient,
+        })
+      );
+    } else {
+      // this.slService.addIngredient(newIngredient);
+      this.store.dispatch(new ShoppingListActions.AddIngredient(newIngredient));
+    }
+    this.editMode = false;
+    form.reset();
+  }
+
+  onDelete() {
+    // this.slService.deleteIngredient(this.editedItemIndex);
+    this.store.dispatch(
+      new ShoppingListActions.DeleteIngredient(this.editedItemIndex)
+    );
+    this.onClear();
+  }
+```
+
+#### Expanding the State
+
+At this point, we only have _ingredients_ in our state. We want to include the state for the editedIngredient and its index.
+
+Since we expanded the state, we need to update the store declaration in our components. Instead of manually adding the new fields into our store declaration, we can export an interface to create our own type definition wherein we describe how our state for the shopping-list reducer looks like.
+
+```typescript
+export interface AppState {
+  shoppingList: State;
+}
+
+export interface State {
+  ingredients: Ingredient[];
+  editedIngredient: Ingredient;
+  editedIngredientIndex: number;
+}
+
+const initialState: State = {
+  ingredients: [new Ingredient("apples", 5), new Ingredient("oranges", 2)],
+  editedIngredient: null,
+  editedIngredientIndex: -1,
+};
+```
+
+We now modify our store declaration
+
+```typescript
+import * as fromShoppingList from './store/shopping-list.reducer';
+
+  constructor(
+    private store: Store<fromShoppingList.AppState>
+  ) {}
+```
+
+This way, if we need to add a new state, we only need to modify our interface State.
+
+#### Managing State for Editing Ingredient
+
+We added a new action for managing the edit state, and along with it, new cases in the reducer.
+
+```typescript
+export class StartEdit implements Action {
+  readonly type = START_EDIT;
+  constructor(public payload: number) {}
+}
+
+export class StopEdit implements Action {
+  readonly type = STOP_EDIT;
+}
+```
+
+```typescript
+    case ShoppingListActions.START_EDIT:
+      return {
+        ...state,
+        editedIngredientIndex: action.payload,
+        editedIngredient: { ...state.ingredients[action.payload] },
+      };
+    case ShoppingListActions.STOP_EDIT:
+      return {
+        ...state,
+        editedIngredient: null,
+        editedIngredientIndex: -1,
+      };
+```
+
+We can then dispatch the actions in the necessary methods
+
+```typescript
+  onEditItem(index: number) {
+    // this.slService.startedEditing.next(index);
+    this.store.dispatch(new ShoppingListActions.StartEdit(index));
+  }
+```
+
+```typescript
+  ngOnInit(): void {
+    this.subscription = this.store
+      .select('shoppingList')
+      .subscribe((stateData) => {
+        if (stateData.editedIngredientIndex > -1) {
+          this.editMode = true;
+          this.editedItem = stateData.editedIngredient;
+          this.slForm.setValue({
+            name: this.editedItem.name,
+            amount: this.editedItem.amount,
+          });
+        } else {
+          this.editMode = false;
+        }
+      });
+  }
+
+  onClear() {
+    this.slForm.reset();
+    this.editMode = false;
+    this.store.dispatch(new ShoppingListActions.StopEdit());
+  }
+```
+
+### One Root State
+
+In this section, we will be implementing NgRx for the auth functionality. At this point, we can create a global store for shoppingList and auth. We create the app.reducer.ts file for this.
+
+```typescript
+import * as fromShoppingList from "../shopping-list/store/shopping-list.reducer";
+import * as fromAuth from "../auth/store/auth.reducer";
+import { ActionReducerMap } from "@ngrx/store";
+
+export interface AppState {
+  shoppingList: fromShoppingList.State;
+  auth: fromAuth.State;
+}
+
+export const appReducer: ActionReducerMap<AppState> = {
+  shoppingList: fromShoppingList.shoppingListReducer,
+  auth: fromAuth.authReducer,
+};
+```
+
+Here appReducer can be used in the AppModule imports.
+
+```typescript
+@NgModule({
+  ...
+  imports: [
+    ...
+    StoreModule.forRoot(fromApp.appReducer),
+  ],
+})
+```
+
+Afterwards we can setup the reducers and actions for auth.
+
+```typescript
+import { Action } from "@ngrx/store";
+
+export const LOGIN = "LOGIN";
+export const LOGOUT = "LOGOUT";
+
+export class Login implements Action {
+  readonly type = LOGIN;
+  constructor(
+    public payload: {
+      email: string;
+      userId: string;
+      token: string;
+      expirationDate: Date;
+    }
+  ) {}
+}
+
+export class Logout implements Action {
+  readonly type = LOGOUT;
+}
+
+export type AuthActions = Login | Logout;
+```
+
+```typescript
+import { User } from "../user.model";
+import * as AuthActions from "./auth.actions";
+
+export interface State {
+  user: User;
+}
+
+const initialState = {
+  user: null,
+};
+
+export function authReducer(
+  state = initialState,
+  action: AuthActions.AuthActions
+) {
+  switch (action.type) {
+    case AuthActions.LOGIN:
+      const user = new User(
+        action.payload.email,
+        action.payload.userId,
+        action.payload.token,
+        action.payload.expirationDate
+      );
+      return {
+        ...state,
+        user: user,
+      };
+    case AuthActions.LOGOUT:
+      return {
+        user: null,
+      };
+    default:
+      return state;
+  }
+}
+```
+
+We then proceed on dispatching the auth actions. We start by injecting to the constructor
+
+```typescript
+export class AuthService {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private store: Store<fromApp.AppState>
+  ) {}
+```
+
+And then use the dispatcher in the autoLogin() and logout()
+
+```typescript
+// check if valid token
+if (loadedUser.token) {
+  // this.user.next(loadedUser);
+  this.store.dispatch(
+    new AuthActions.Login({
+      email: loadedUser.email,
+      userId: loadedUser.id,
+      token: loadedUser.token,
+      expirationDate: new Date(userData._tokenExpirationDate),
+    })
+  );
+}
+```
+
+```typescript
+  logout() {
+    // this.user.next(null);
+    this.store.dispatch(new AuthActions.Logout());
+    this.router.navigate(['/auth']);
+    localStorage.removeItem('userData');
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+    }
+    this.tokenExpirationTimer = null;
+  }
+```
