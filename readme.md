@@ -4805,3 +4805,93 @@ if (loadedUser.token) {
     this.tokenExpirationTimer = null;
   }
 ```
+
+### NgRx Effects
+
+Side effects are parts in our code where we run some logic that is not important for the immediate update of the current state. @ngrx/effects is a package that gives us tools for elegantly working with side effects. We can start with implementing a login effect. **Actions** is an observable that gives us access to dispatched actions so we can react to them. In the effect class, we don't change the state but we can execute any code when an action is dispatched.
+
+Inside the pipe operator, we use ofType to define a filter for which type of effects we need to continue with authLogin. This basically means that we only continue with this chain if the type of action is LOGIN_START. All other actions will not trigger this effect. The switchMap() method allows us to create another observable using another observables data. Here we can transfer the functionality for login from our auth service.
+
+Once we succeed with logging in, we will dispatch our login action to create the user object. Hence we will need to return a new observable
+
+```typescript
+export class LoginStart implements Action {
+  readonly type = LOGIN_START;
+  constructor(public payload: { email: string; password: string }) {}
+}
+```
+
+```typescript
+export interface AuthResponseData {
+  idToken: string;
+  email: string;
+  refreshToken: string;
+  expiresIn: string;
+  localId: string;
+  registered?: boolean;
+}
+
+@Injectable()
+export class AuthEffects {
+  constructor(private actions$: Actions, private http: HttpClient) {}
+
+  @Effect()
+  authLogin = this.actions$.pipe(
+    ofType(AuthActions.LOGIN_START),
+    switchMap((authData: AuthActions.LoginStart) => {
+      return this.http
+        .post<AuthResponseData>(
+          `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`,
+          {
+            email: authData.payload.email,
+            password: authData.payload.password,
+            returnSecureToken: true,
+          }
+        )
+        .pipe(
+          map((resData) => {
+            const expirationDate = new Date(
+              new Date().getTime() + +resData.expiresIn * 1000
+            );
+            return of(
+              new AuthActions.Login({
+                email: resData.email,
+                userId: resData.localId,
+                token: resData.idToken,
+                expirationDate: expirationDate,
+              })
+            );
+          }),
+          catchError((error) => {
+            return of();
+          })
+        );
+    })
+  );
+}
+```
+
+To wire the effects, we need to go to AppModule and add an import for EffectsModule
+
+```typescript
+@NgModule({
+  declarations: [AppComponent, HeaderComponent],
+  imports: [
+    ...
+    EffectsModule.forRoot([AuthEffects]),
+  ],
+  bootstrap: [AppComponent],
+  entryComponents: [AlertComponent],
+})
+```
+
+Then we use it on our auth component's login method
+
+```typescript
+if (this.isLoginMode) {
+  // authObservable = this.authService.login(email, password);
+  this.store.dispatch(
+    new AuthActions.LoginStart({ email: email, password: password })
+  );
+}
+```
