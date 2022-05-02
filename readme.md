@@ -1,6 +1,9 @@
 # [Angular - The Complete Guide 2021 Edition](https://www.udemy.com/course/the-complete-guide-to-angular-2/)
 
 Instructor: Max Schwarzmuller
+Finished application: [Link](https://demiglace-ng-recipe-book.web.app/)
+
+![Certificate of completion](UC-74f4426d-1068-461f-abab-7275b3f5f005.jpg)
 
 ### Course Structure
 
@@ -4332,6 +4335,8 @@ To build the project, we can run `ng build --prod`. This compiles the typescript
 
 For deploying our static web app, we can use Google Firebase. We first need to install the firebase cli `npm install -g firebase-tools`. Afterwards we do `firebase login` into our account then `firebase init` to connect our project into our firebase project. For the public directory, we use `dist/RecipeBook`. After going through the wizard, we can run `firebase deploy`
 
+The application can be found at `https://demiglace-ng-recipe-book.web.app/`
+
 ## NgRx
 
 RxJS allows us to create a streamlined state management experience. With **Subjects** we can react to user or app events by using **Observables** and **Listen** to state changes and update the ui. The problems with RxJS is that there is no enforced pattern. This is where Redux comes in. NgRx is angular's implementation of redux and uses RxJS under the hood. NgRx also gives us tools to make working with Side Effects such as sending http requests and asynchronous code easier.
@@ -4895,3 +4900,49 @@ if (this.isLoginMode) {
   );
 }
 ```
+
+#### Using Redux Devtools
+
+We can add redux devtools to our project by installing it using
+
+```
+npm install --save-dev @ngrx/store-devtools
+```
+
+We then import the module afterwards to our app.module
+
+```typescript
+@NgModule({
+  declarations: [AppComponent, HeaderComponent],
+  imports: [
+    ...
+    StoreDevtoolsModule.instrument({ logOnly: environment.production }),
+  ],
+})
+```
+
+## Angular Universal
+
+Angular Universal allows us to pre-render our Angular app to the server. We can use nestjs, a server side framework for node.js, to implement angular universal. We just need to run `ng add @nestjs/ng-universal`. Aside from getting an angular universal app, nestjs also provides a nestjs application that can be used for building an api.
+
+## Unit Testing in Angular
+
+> Reference activity: testing-final
+
+The **TestBed** is the main angular 2 testing utility object which allows us to configure the module for our testing. Here we declare which components we wish to have in our testing environment. Tests are marked by **it()**. For each it block, we need to use the **createComponent** method of the TestBed object.
+
+```typescript
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    declarations: [AppComponent],
+  });
+});
+
+it("should create the app", async(() => {
+  let fixture = TestBed.createComponent(AppComponent);
+  let app = fixture.debugElement.componentInstance;
+  expect(app).toBeTruthy();
+}));
+```
+
+To run the test withe the CLI, we can use the command `ng test`
